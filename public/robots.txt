@@ -1,0 +1,6 @@
+user-agent: *
+disallow: /privacy
+disallow: /onlineOrder
+disallow: /success
+disallow: /search
+

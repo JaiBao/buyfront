@@ -1,0 +1,83 @@
+.adminOrdersTable {
+  margin: 5%;
+  //   padding: 2%;
+}
+.text-red {
+  color: red;
+}
+
+.text-grey {
+  color: grey;
+}
+
+.text-green {
+  color: green;
+}
+
+.text-blue {
+  color: blue;
+}
+
+.reCatch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 98%;
+  justify-content: flex-end;
+  margin: 1%;
+}
+
+.reCatch span {
+  margin-left: 10px;
+}
+
+.filterBtn {
+  min-width: 150px;
+}
+
+// .q-date {
+//   width: 800px;
+//   height: 600px;
+//   font-size: 20px;
+// }
+// .q-date__navigation {
+//   height: 80px;
+//   .q-btn__content {
+//     width: 200px;
+//     height: 100px;
+//     font-size: 40px;
+//   }
+//   .q-date__arrow {
+//     height: 70px;
+//     .q-btn {
+//       height: 70px;
+//       width: 70px;
+//       font-size: 40px;
+//     }
+//     .q-btn__content {
+//       height: 70px;
+//       width: 70px;
+//       font-size: 40px;
+//     }
+//   }
+// }
+// .q-date__calendar-days-container {
+//   height: 600px;
+//   width: 760px;
+//   font-size: 40px;
+//   .q-date__calendar-days {
+//     height: 40px;
+//     width: 40px;
+//     font-size: 20px;
+//     .q-date__calendar-item {
+//       height: 40px;
+//       width: 40px;
+//       font-size: 20px;
+//       .q-btn {
+//         height: 50px;
+//         width: 50px;
+//         font-size: 30px;
+//       }
+//     }
+//   }
+// }

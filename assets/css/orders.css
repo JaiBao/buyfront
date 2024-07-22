@@ -1,0 +1,41 @@
+.adminOrdersTable {
+  margin: 5%;
+}
+
+.text-red {
+  color: red;
+}
+
+.text-grey {
+  color: grey;
+}
+
+.text-green {
+  color: green;
+}
+
+.text-blue {
+  color: blue;
+}
+
+.reCatch {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 98%;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  margin: 1%;
+}
+
+.reCatch span {
+  margin-left: 10px;
+}

@@ -1,0 +1,47 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev ",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
+    "@types/aos": "^3.0.7",
+    "@types/node": "^18.17.0",
+    "nuxt": "^3.6.5",
+    "nuxt-quasar-ui": "^2.0.4",
+    "nuxt-simple-sitemap": "^3.2.7"
+  },
+  "dependencies": {
+    "@nuxt/image": "^1.1.0",
+    "@pdf-lib/fontkit": "^1.1.1",
+    "@pinia/nuxt": "^0.4.11",
+    "@quasar/extras": "^1.16.5",
+    "aos": "^2.3.4",
+    "axios": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "gsap": "^3.12.2",
+    "luxon": "^3.4.3",
+    "pdf-lib": "^1.17.1",
+    "pinia": "^2.1.6",
+    "pinia-plugin-persistedstate": "^3.2.1",
+    "quasar": "^2.12.3",
+    "sass": "^1.64.1",
+    "scrollmagic": "^2.0.8",
+    "scrollmagic-plugin-gsap": "^1.0.4",
+    "socket.io-client": "^4.7.5",
+    "sweetalert2": "^11.12.2",
+    "swiper": "^11.0.5",
+    "validator": "^13.12.0",
+    "vue-hcaptcha": "^0.1.1",
+    "vue3-carousel": "^0.3.1"
+  },
+  "overrides": {
+    "vue": "latest"
+  }
+}
