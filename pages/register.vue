@@ -24,11 +24,26 @@
                 counter="20"
                 maxlength="20" />
               <q-input v-model="userForm.name" type="text" :rules="[rules.required]" label="姓名" />
+
+              <!-- 新增性別選擇 -->
+              <q-select v-model="userForm.gender" :options="genderOptions" label="性別" map-options emit-value />
+
+              <!-- 新增出生日期 -->
+              <q-input v-model="userForm.birthdate" label="出生日期" mask="####-##-##">
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer q-mr-xs">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
+                      <q-date v-model="userForm.birthdate" mask="YYYY-MM-DD" @update:model-value="onDateSelected" color="accent"></q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
               <q-input v-model="userForm.address" type="text" :rules="[rules.required]" label="地址" />
               <q-input v-model="userForm.email" type="email" :rules="[rules.email, rules.required]" label="信箱" />
               <q-input v-model="userForm.phoneNumber" type="text" :rules="[rules.required, rules.phone]" label="手機號碼" />
               <q-input v-model="userForm.companyName" type="text" label="公司名稱" />
               <q-input v-model="userForm.taxId" type="text" label="統一編號" />
+
               <div class="userTerms row justify-center w-100">
                 <q-checkbox v-model="userForm.termsAccepted" :rules="[rules.terms]" label="同意會員使用條款" />
                 <q-btn color="primary" flat label="閱讀條款" @click="showTerms = true" />
@@ -59,12 +74,25 @@
                 counter="20"
                 maxlength="20" />
               <q-input v-model="adminForm.name" type="text" :rules="[rules.required]" label="姓名" />
+              <!-- 新增性別選擇 -->
+              <q-select v-model="adminForm.gender" :options="genderOptions" label="性別" map-options emit-value />
+
+              <!-- 新增出生日期 -->
+              <q-input v-model="adminForm.birthdate" label="出生日期" mask="####-##-##">
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer q-mr-xs">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
+                      <q-date v-model="adminForm.birthdate" mask="YYYY-MM-DD" @update:model-value="onDateSelected" color="accent"></q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
               <q-input v-model="adminForm.address" type="text" :rules="[rules.required]" label="地址" />
               <q-input v-model="adminForm.email" type="email" :rules="[rules.email, rules.required]" label="信箱" />
               <q-input v-model="adminForm.phoneNumber" type="text" :rules="[rules.required, rules.phone]" label="手機號碼" />
               <q-input v-model="adminForm.companyName" type="text" :rules="[rules.required]" label="公司名稱" />
-
               <q-input v-model="adminForm.taxId" type="text" :rules="[rules.required]" label="統一編號" />
+
               <div class="userTerms row justify-center w-100">
                 <q-checkbox v-model="adminForm.termsAccepted" :rules="[rules.terms]" label="同意會員使用條款" />
                 <q-btn color="primary" flat label="閱讀條款" @click="showTerms = true" />
@@ -101,6 +129,7 @@ const router = useRouter()
 const tab = ref('user')
 const loading = ref(false)
 const showTerms = ref(false)
+const showDatePicker = ref(false)
 
 const userForm = reactive({
   account: '',
@@ -112,6 +141,8 @@ const userForm = reactive({
   phoneNumber: '',
   companyName: '',
   taxId: '',
+  gender: '',
+  birthdate: '',
   termsAccepted: false
 })
 
@@ -125,9 +156,16 @@ const adminForm = reactive({
   companyName: '',
   taxId: '',
   phoneNumber: '',
+  gender: '',
+  birthdate: '',
   role: 1,
   termsAccepted: false
 })
+
+const genderOptions = [
+  { label: '男', value: 'male' },
+  { label: '女', value: 'female' }
+]
 
 const rules = {
   email: value => validator.isEmail(value) || '格式錯誤',
@@ -211,6 +249,12 @@ const registerAdmin = async () => {
     })
   }
   loading.value = false
+}
+
+const onDateSelected = date => {
+  userForm.birthdate = date
+  adminForm.birthdate = date
+  showDatePicker.value = false
 }
 </script>
 

@@ -175,6 +175,15 @@
             <p>
               <strong>訂購人:</strong>
               {{ selectedOrder.name }}
+              <span class="text-red" v-if="selectedOrder.gender">{{ genderChinese(selectedOrder.gender) }}</span>
+            </p>
+            <p>
+              <strong>生日:</strong>
+              {{ new Date(selectedOrder.birthdate).toLocaleDateString() }}
+              <span v-if="isBirthday(selectedOrder.birthdate)" class="birthday-icon">
+                <q-icon name="cake" size="sm" color="red" />
+                <span class="birthday-message">生日快樂!</span>
+              </span>
             </p>
             <p>
               <strong>訂購人手機:</strong>
@@ -319,6 +328,23 @@ const counter = ref(60)
 const orderStatusHistoryStore = useOrderStatusHistoryStore()
 const statusHistory = orderStatusHistoryStore.statusHistory
 const { newOrderStatusCount } = storeToRefs(orderStatusHistoryStore)
+
+const genderChinese = gender => {
+  switch (gender) {
+    case 'male':
+      return '男'
+    case 'female':
+      return '女'
+    default:
+      return ''
+  }
+}
+
+const isBirthday = birthdate => {
+  const today = new Date()
+  const birthDate = new Date(birthdate)
+  return today.getMonth() === birthDate.getMonth() && today.getDate() === birthDate.getDate()
+}
 
 const page = ref(1)
 const pageCount = ref(1)

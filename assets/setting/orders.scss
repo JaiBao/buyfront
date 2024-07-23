@@ -81,3 +81,25 @@
 //     }
 //   }
 // }
+
+.birthday-icon {
+  display: inline-flex;
+  align-items: center;
+  .birthday-message {
+    animation: blink-animation 1s steps(5, start) infinite;
+    -webkit-animation: blink-animation 1s steps(5, start) infinite;
+    margin-left: 5px;
+    color: red;
+  }
+}
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
