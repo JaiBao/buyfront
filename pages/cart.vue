@@ -53,7 +53,18 @@
                 <q-input v-model="user.name" label="訂購人" outlined readonly />
                 <q-input v-model="phone" label="訂購人手機" type="tel" outlined readonly />
                 <q-input v-model="landline" label="市話" type="tel" outlined />
-                <q-input v-model="deliveryDate" label="送達日期" type="date" outlined />
+
+                <q-input v-model="deliveryDate" label="送達日期" outlined mask="####-##-##">
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer q-mr-xs">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
+                        <q-date v-model="deliveryDate" mask="YYYY-MM-DD" @update:model-value="onDateSelected" color="accent"></q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+
+                <q-select v-model="deliveryTime" :options="timeSlots" label="送達時段" outlined></q-select>
                 <q-input v-model="user.companyName" label="公司名稱" outlined />
                 <q-input v-model="user.taxId" label="統一編號" outlined />
                 <q-input v-model="user.address" label="地址" outlined />
@@ -86,12 +97,14 @@ const { editCart, checkout } = user
 const cart = reactive([])
 
 const deliveryDate = ref('')
+const deliveryTime = ref('')
 const phone = ref(user.phoneNumber)
 const landline = ref('')
 const recipientName = ref('')
 const recipientPhone = ref('')
 const sameAsOrderer = ref(false)
 const checkoutDialog = ref(false)
+const showDatePicker = ref(false)
 const loading = ref(false)
 const comment = ref('')
 
@@ -103,6 +116,16 @@ const columns = [
   { name: 'total', label: '小計', field: row => row.quantity * (row.details?.price || 0), align: 'center', sortable: true },
   { name: 'actions', label: '操作', align: 'center', sortable: false }
 ]
+
+const timeSlots = ref([])
+for (let hour = 9; hour < 18; hour++) {
+  timeSlots.value.push(`${hour}:00-${hour}:30`, `${hour}:30-${hour + 1}:00`)
+}
+
+const onDateSelected = date => {
+  deliveryDate.value = date
+  showDatePicker.value = false
+}
 
 watch(sameAsOrderer, newValue => {
   if (newValue) {
@@ -135,11 +158,22 @@ const openCheckoutDialog = () => {
 
 const onCheckoutBtnClick = async () => {
   if (!deliveryDate.value) {
-    return Swal.fire({ icon: 'error', title: '失敗', text: '送達日期是必需的' })
+    checkoutDialog.value = false
+    await Swal.fire({ icon: 'error', title: '失敗', text: '送達日期是必需的' })
+    checkoutDialog.value = true
+    return
+  }
+
+  if (!deliveryTime.value) {
+    checkoutDialog.value = false
+    await Swal.fire({ icon: 'error', title: '失敗', text: '送達時間是必需的' })
+    checkoutDialog.value = true
+    return
   }
 
   const orderData = {
     deliveryDate: deliveryDate.value,
+    deliveryTime: deliveryTime.value,
     phone: phone.value,
     landline: landline.value,
     companyName: user.companyName,
@@ -152,8 +186,16 @@ const onCheckoutBtnClick = async () => {
     address: user.address
   }
 
-  await checkout(orderData)
-  router.push('/orders')
+  try {
+    await checkout(orderData)
+    router.push('/orders')
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: '失敗',
+      text: error.response?.data?.message || '訂單提交失敗，請稍後再試'
+    })
+  }
 }
 
 const totalPrice = computed(() => {

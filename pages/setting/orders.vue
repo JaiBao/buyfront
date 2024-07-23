@@ -56,7 +56,7 @@
             </template>
             <template v-slot:body-cell-user="props">
               <q-td :props="props">
-                <q-btn flat @click="openUserDialog(props.row)">
+                <q-btn flat color="primary" @click="openUserDialog(props.row)">
                   {{ props.row.userAccount || '未知用戶' }}
                 </q-btn>
               </q-td>
@@ -65,7 +65,7 @@
               <q-td :props="props">
                 <ul>
                   <li v-for="product in props.row.products" :key="product.id + '-' + product.manufacturer_name">
-                    <q-btn style="padding: 0; min-height: 0" flat @click="openManufacturerDialog(product.uid)">
+                    <q-btn color="primary" style="padding: 0; min-height: 0" flat @click="openManufacturerDialog(product.uid)">
                       {{ product.manufacturer_name }}
                     </q-btn>
                   </li>
@@ -164,9 +164,14 @@
               {{ new Date(selectedOrder.date).toLocaleDateString() }}
             </p>
             <p>
-              <strong>送達時間:</strong>
+              <strong>送達日期:</strong>
               {{ new Date(selectedOrder.delivery_date).toLocaleDateString() }}
             </p>
+            <p>
+              <strong>送達時段:</strong>
+              {{ selectedOrder.delivery_time }}
+            </p>
+
             <p>
               <strong>訂購人:</strong>
               {{ selectedOrder.name }}
@@ -340,9 +345,10 @@ const commonColumns = [
   { name: 'oid', required: true, label: '訂單編號', align: 'center', field: row => row.oid, format: val => `${val}`, sortable: true },
   { name: 'date', align: 'center', label: '訂購日期', field: row => new Date(row.date).toLocaleDateString(), sortable: true },
   { name: 'deliveryDate', align: 'center', label: '送達日期', field: row => new Date(row.delivery_date).toLocaleDateString(), sortable: true },
+  { name: 'deliveryTime', align: 'center', label: '送達時段', field: row => row.delivery_time, sortable: true },
   { name: 'totalPrice', align: 'left', label: '金額', field: row => row.total_price, sortable: true },
   { name: 'products', align: 'left', label: '商品/商品狀態異動(廠商)', field: 'products', sortable: false },
-  { name: 'user', align: 'center', label: '用戶', field: 'user_account', sortable: true },
+  { name: 'user', align: 'center', label: '用戶帳號', field: 'user_account', sortable: true },
   { name: 'status', align: 'center', label: '訂單狀態/更改(管理者)', field: 'status', sortable: true },
   { name: 'comment', align: 'center', label: '備註', field: 'comment', sortable: false }
 ]

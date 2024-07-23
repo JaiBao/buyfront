@@ -44,7 +44,7 @@ import StoreCard from '/components/StoreCard.vue'
 
 const products = ref([])
 const stores = ref([])
-const searchCategory = ref('')
+const searchCategory = ref('商品種類選擇')
 const searchStore = ref('')
 const categories = ['中式料理', '韓式料理', '日式料理', '手搖杯飲料', '其他']
 
@@ -96,7 +96,7 @@ const search = async () => {
 }
 
 const clearSearch = () => {
-  searchCategory.value = ''
+  searchCategory.value = '商品種類選擇'
   searchStore.value = ''
   fetchProducts()
 }

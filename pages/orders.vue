@@ -144,6 +144,7 @@ const columns = [
   { name: 'oid', required: true, label: '訂單編號', align: 'center', field: row => row.oid, format: val => `${val}`, sortable: true },
   { name: 'date', align: 'center', label: '訂購日期', field: row => new Date(row.date).toLocaleDateString(), sortable: true },
   { name: 'deliveryDate', align: 'center', label: '送達日期', field: row => new Date(row.delivery_date).toLocaleDateString(), sortable: true },
+  { name: 'deliveryTime', align: 'center', label: '送達時段', field: row => row.delivery_time, sortable: true },
   { name: 'totalPrice', align: 'left', label: '金額', field: row => row.total_price, sortable: true },
   { name: 'products', align: 'left', label: '商品', field: 'products', sortable: false },
   { name: 'status', align: 'center', label: '狀態', field: 'status', sortable: true },
