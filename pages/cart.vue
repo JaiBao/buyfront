@@ -72,6 +72,7 @@
                 <q-input v-model="recipientName" label="收貨人" outlined />
                 <q-input v-model="recipientPhone" label="收貨人電話" type="tel" outlined />
                 <q-input v-model="comment" label="備註" outlined />
+                <q-select v-model="paymentMethod" :options="paymentMethods" label="付款方式" outlined></q-select>
               </q-card-section>
               <q-card-actions align="right">
                 <q-btn flat label="取消" color="negative" @click="checkoutDialog = false" />
@@ -102,6 +103,7 @@ const phone = ref(user.phoneNumber)
 const landline = ref('')
 const recipientName = ref('')
 const recipientPhone = ref('')
+const paymentMethod = ref('')
 const sameAsOrderer = ref(false)
 const checkoutDialog = ref(false)
 const showDatePicker = ref(false)
@@ -116,6 +118,8 @@ const columns = [
   { name: 'total', label: '小計', field: row => row.quantity * (row.details?.price || 0), align: 'center', sortable: true },
   { name: 'actions', label: '操作', align: 'center', sortable: false }
 ]
+
+const paymentMethods = ref(['現金', '轉帳'])
 
 const timeSlots = ref([])
 for (let hour = 9; hour < 18; hour++) {
@@ -171,9 +175,17 @@ const onCheckoutBtnClick = async () => {
     return
   }
 
+  if (!paymentMethod.value) {
+    checkoutDialog.value = false
+    await Swal.fire({ icon: 'error', title: '失敗', text: '付款方式是必需的' })
+    checkoutDialog.value = true
+    return
+  }
+
   const orderData = {
     deliveryDate: deliveryDate.value,
     deliveryTime: deliveryTime.value,
+    paymentMethod: paymentMethod.value,
     phone: phone.value,
     landline: landline.value,
     companyName: user.companyName,

@@ -146,6 +146,7 @@ const columns = [
   { name: 'deliveryDate', align: 'center', label: '送達日期', field: row => new Date(row.delivery_date).toLocaleDateString(), sortable: true },
   { name: 'deliveryTime', align: 'center', label: '送達時段', field: row => row.delivery_time, sortable: true },
   { name: 'totalPrice', align: 'left', label: '金額', field: row => row.total_price, sortable: true },
+  { name: 'paymentMethod', align: 'center', label: '付款方式', field: row => row.payment_method, sortable: true },
   { name: 'products', align: 'left', label: '商品', field: 'products', sortable: false },
   { name: 'status', align: 'center', label: '狀態', field: 'status', sortable: true },
   { name: 'comment', align: 'center', label: '備註', field: 'comment', sortable: false },

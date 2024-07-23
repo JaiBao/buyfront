@@ -347,6 +347,7 @@ const commonColumns = [
   { name: 'deliveryDate', align: 'center', label: '送達日期', field: row => new Date(row.delivery_date).toLocaleDateString(), sortable: true },
   { name: 'deliveryTime', align: 'center', label: '送達時段', field: row => row.delivery_time, sortable: true },
   { name: 'totalPrice', align: 'left', label: '金額', field: row => row.total_price, sortable: true },
+  { name: 'paymentMethod', align: 'center', label: '付款方式', field: row => row.payment_method, sortable: true },
   { name: 'products', align: 'left', label: '商品/商品狀態異動(廠商)', field: 'products', sortable: false },
   { name: 'user', align: 'center', label: '用戶帳號', field: 'user_account', sortable: true },
   { name: 'status', align: 'center', label: '訂單狀態/更改(管理者)', field: 'status', sortable: true },
