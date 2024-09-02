@@ -1,14 +1,16 @@
+<!-- layout/admin.vue -->
 <template>
   <q-layout view="hHh lpR fFf">
     <q-header elevated>
-      <q-toolbar>
-        <q-toolbar-title v-if="isAdmin || (isSuperAdmin && isLogin)">管理介面</q-toolbar-title>
-        <q-toolbar-title v-if="isAdmin && isSuperAdmin">管理介面</q-toolbar-title>
+      <q-toolbar class="bg-yellow-7">
+        <!-- <q-btn dense flat round icon="menu" @click="miniState = false" /> -->
+        <q-toolbar-title class="text-black" v-if="isAdmin || (isSuperAdmin && isLogin)">管理介面</q-toolbar-title>
+        <q-toolbar-title v-else>個人資料管理</q-toolbar-title>
         <q-space></q-space>
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="drawer" :mini="miniState" @mouseover="miniState = false" @mouseout="miniState = true" side="left" bordered>
+    <q-drawer show-if-above :width="200" v-model="drawer" :mini="miniState" @mouseover="miniState = false" @mouseout="miniState = true" side="left" bordered>
       <q-list>
         <q-item>
           <q-item-section avatar>
@@ -16,7 +18,7 @@
               <img :src="avatar" />
             </q-avatar> -->
             <q-icon v-if="isSuperAdmin" name="support_agent" size="sm" />
-            <q-icon v-else-if="isAdmin" name="storefront" size="sm" />
+            <q-icon v-else-if="isAdmin" name="apartment" size="sm" />
             <q-icon v-else name="face" size="sm" />
           </q-item-section>
           <q-item-section>
@@ -34,9 +36,17 @@
             <q-item-label>個人資料修改</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item v-if="isSuperAdmin" clickable v-ripple to="/setting/carousel">
+          <q-item-section avatar>
+            <q-icon name="view_carousel" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>輪播圖片設定</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item v-if="isAdmin || isSuperAdmin" clickable v-ripple to="/setting/products">
           <q-item-section avatar>
-            <q-icon name="shopping_cart" />
+            <q-icon name="storefront" />
           </q-item-section>
           <q-item-section>
             <q-item-label>商品管理</q-item-label>
@@ -57,6 +67,15 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>帳號管理</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item v-if="isSuperAdmin" clickable v-ripple to="/setting/pendingAccounts">
+          <q-item-section avatar>
+            <q-icon name="rule" />
+            <q-badge v-if="pendingCountStore.pendingCount > 0" color="red" floating>{{ pendingCountStore.pendingCount }}</q-badge>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>待審核廠商</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -80,11 +99,21 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '/stores/user'
+import { usePendingCountStore } from '/stores/pendingCountStore'
 
 const user = useUserStore()
 const { avatar, account, isAdmin, isSuperAdmin, isLogin } = storeToRefs(user)
 const drawer = ref(true)
 const miniState = ref(true)
+
+const pendingCountStore = usePendingCountStore()
+const { fetchPendingCount } = pendingCountStore
+
+onMounted(() => {
+  if (isSuperAdmin.value) {
+    fetchPendingCount()
+  }
+})
 </script>
 
 <style>

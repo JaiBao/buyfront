@@ -2,31 +2,33 @@
 <template>
   <q-card class="card-product">
     <div class="title">
-      <img :src="product.image" />
+      <div class="img">
+        <img :src="product.image" />
+        <div class="imgTxt">
+          <p>{{ product.company_name }}</p>
+        </div>
+      </div>
       <div class="name">
         <p>
-          <a @click="openDialog" class="text-decoration-none text-primary">{{ product.name }}</a>
-          ${{ product.price }}
+          {{ product.name }}
         </p>
       </div>
     </div>
-    <div class="content">
-      <!-- <q-card-title class="row justify-center"></q-card-title> -->
 
-      <q-card-section>
-        <p class="pre">{{ product.description }}</p>
-        <p class="pre">
+    <q-card-section class="content">
+      <p class="pre" v-html="product.description"></p>
+
+      <!-- <p>金額:</p> -->
+    </q-card-section>
+
+    <q-card-actions class="btn">
+      <!-- <p class="pre">
           <nuxt-link :to="'/store/' + product.uid" class="text-decoration-none text-primary">
             {{ product.company_name }}
           </nuxt-link>
-        </p>
-        <!-- <p>金額:</p> -->
-      </q-card-section>
-
-      <q-card-actions>
-        <q-btn color="primary" @click="openDialog" class="w-100">立即預訂</q-btn>
-      </q-card-actions>
-    </div>
+        </p> -->
+      <q-btn :to="`/store/${product.uid}`" class="w-100 orderBtn">立即預訂</q-btn>
+    </q-card-actions>
 
     <q-dialog v-model="showDialog" persistent>
       <q-card>
@@ -37,7 +39,6 @@
             <span>${{ product.price }}</span>
           </p>
           <p class="pre">{{ product.description }}</p>
-          <!-- <p class="pre">店家: {{ product.company_name }}</p> -->
         </q-card-section>
         <q-card-actions>
           <q-form @submit.prevent="submitCart" class="w-100">
@@ -54,7 +55,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useUserStore } from '/stores/user'
 
 const props = defineProps({
@@ -63,6 +63,8 @@ const props = defineProps({
     required: true
   }
 })
+
+console.log(props.product)
 
 const user = useUserStore()
 const { editCart } = user
@@ -86,7 +88,7 @@ const closeDialog = () => {
 
 const submitCart = () => {
   if (quantity.value > 0) {
-    editCart({ id: props.product.id, quantity: quantity.value })
+    editCart({ id: props.product.id, quantity: quantity.value, uid: props.product.uid, action: 'add' })
     showDialog.value = false
   }
 }

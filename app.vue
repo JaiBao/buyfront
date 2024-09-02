@@ -6,7 +6,7 @@
   </div>
 </template>
 <script setup>
-import '/plugins/websocket.client.js'
+// import '/plugins/websocket.client.js'
 // if (process.client) {
 //   window.addEventListener('beforeunload', () => {
 //     useAgreeCollectionStore().clearAgreement()

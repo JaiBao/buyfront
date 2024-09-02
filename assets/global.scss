@@ -53,13 +53,29 @@ a:active {
   z-index: 2000;
 }
 
+.text-yellow-7 {
+  color: #ffcb67 !important;
+}
+.text-yellow-6 {
+  color: #eba41b !important;
+}
+.text-yellow-5 {
+  color: #ffb340 !important;
+}
+.bg-yellow-5 {
+  background: #ffb340 !important;
+}
+.bg-yellow-7 {
+  background: #ffcb67 !important;
+}
+
 //banner輪播
 
 .indexBanner {
   .q-carousel__arrow .q-icon {
     font-size: 2.5rem;
     display: none;
-    color: #f50077;
+    color: #ffcb67;
     @media (min-width: 768px) {
       font-size: 3.5rem;
     }
@@ -83,7 +99,7 @@ a:active {
     z-index: 100;
     font-size: 2rem;
     @media (min-width: 1300px) {
-      bottom: 7%;
+      bottom: 6%;
     }
     .q-icon {
       font-size: 0.85em;
@@ -185,6 +201,50 @@ a:active {
   //   color: #F50077;
   // }
 }
+// vue3carousel
+.indexSection1 {
+  margin-top: 3%;
+  border-radius: 10px;
+  overflow: hidden;
+  img {
+    border-radius: 10px;
+    width: 100%;
+    display: block;
+
+    object-fit: cover;
+  }
+  .carousel__pagination {
+    width: 100%;
+    padding: 0;
+    .carousel__pagination-item {
+      min-width: 25px;
+      .carousel__pagination-button::after {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #fff;
+      }
+      .carousel__pagination-button:hover::after,
+      .carousel__pagination-button--active::after {
+        background-color: #f7b52c !important;
+      }
+    }
+    @media (min-width: 1024px) {
+      .carousel__pagination-item {
+        min-width: 30px;
+        .carousel__pagination-button::after {
+          width: 10px;
+          height: 10px;
+        }
+        .carousel__pagination-button:hover::after,
+        .carousel__pagination-button--active::after {
+          width: 10px;
+          height: 10px;
+        }
+      }
+    }
+  }
+}
 
 body.mobile:not(.native-mobile) .q-select__dialog {
   max-height: calc(100vh - 140px) !important;
@@ -213,6 +273,10 @@ body.mobile:not(.native-mobile) .q-select__dialog {
   // .q-icon {
   //   margin-left: ;
   // }
+}
+
+.q-page {
+  padding: 0 5%;
 }
 
 // header使用
@@ -250,6 +314,9 @@ body.mobile:not(.native-mobile) .q-select__dialog {
   margin-bottom: 0;
 }
 
+.p-0-5 {
+  padding: 0 5%;
+}
 .q-date__header-subtitle {
   display: none;
 }
@@ -402,4 +469,44 @@ body.mobile:not(.native-mobile) .q-select__dialog {
 
 .disable {
   cursor: not-allowed;
+}
+
+.nomalTitle {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-left: 8px solid #2b2b2b;
+  margin: 10px 0;
+  p {
+    color: #2b2b2b;
+    font-size: 38px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%; /* 60.8px */
+    padding-left: 10px;
+    margin: 0;
+  }
+  .seeMore {
+    font-size: 20px;
+  }
+}
+.nomalTitle2 {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-left: 8px solid #2b2b2b !important;
+  margin: 10px 0;
+  p {
+    color: #2b2b2b;
+    font-size: 22px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%; /* 60.8px */
+    padding-left: 10px;
+    margin: 0;
+  }
 }

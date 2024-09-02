@@ -1,11 +1,13 @@
+// stores/user.js
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api, apiAuth } from '/plugins/axios'
+
 import Swal from 'sweetalert2'
 
 export const useUserStore = defineStore(
   'user',
   () => {
+    const { $api, $apiAuth } = useNuxtApp()
     const token = ref('')
     const account = ref('')
     const email = ref('')
@@ -27,7 +29,7 @@ export const useUserStore = defineStore(
 
     const login = async form => {
       try {
-        const { data } = await api.post('/users/login', form)
+        const { data } = await $api.post('/users/login', form)
         token.value = data.result.token
         account.value = data.result.account
         email.value = data.result.email
@@ -49,7 +51,7 @@ export const useUserStore = defineStore(
     const logout = async () => {
       try {
         //console.log(`Logging out with token: ${token.value}`)
-        await apiAuth.delete('/users/logout')
+        await $apiAuth.delete('/users/logout')
         token.value = ''
         account.value = ''
         role.value = 0
@@ -71,7 +73,7 @@ export const useUserStore = defineStore(
     const getUser = async () => {
       if (token.value.length === 0) return
       try {
-        const { data } = await apiAuth.get('/users/me')
+        const { data } = await $apiAuth.get('/users/me')
         account.value = data.result.account
         email.value = data.result.email
         cart.value = data.result.cart
@@ -87,17 +89,50 @@ export const useUserStore = defineStore(
       }
     }
 
-    const editCart = async ({ id, quantity }) => {
+    const editCart = async ({ id, quantity, uid, action }) => {
       if (token.value.length === 0) {
         Swal.fire({ icon: 'error', title: '失敗', text: '請先登入' })
         router.push('/login')
         return
       }
+
       try {
-        const { data } = await apiAuth.post('/users/cart', { p_id: id, quantity: parseInt(quantity) })
-        cart.value = data.result
-        const action = quantity > 0 ? '加入購物車成功' : '成功移除商品'
-        Swal.fire({ icon: 'success', title: '成功', text: action })
+        if (action === 'add') {
+          // get當前購物車
+          const { data: cartData } = await $apiAuth.get('/users/cart')
+          const currentCart = cartData.result
+
+          if (currentCart.length > 0 && currentCart[0].uid !== uid) {
+            // 不為空 uid不同
+            const result = await Swal.fire({
+              title: '此為不同店家商品，是否覆蓋前一個店家的訂單？',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: '確認',
+              cancelButtonText: '取消'
+            })
+
+            if (result.isConfirmed) {
+              await $apiAuth.delete('/users/cart') //
+              const { data } = await $apiAuth.post('/users/cart', { p_id: id, quantity: parseInt(quantity), uid })
+              cart.value = data.result
+              Swal.fire({ icon: 'success', title: '成功', text: '購物車已更新' })
+            } else {
+              // 取消
+              Swal.fire({ icon: 'info', title: '取消', text: '商品未加入購物車' })
+            }
+          } else {
+            // 購物車空或uid相同
+            const { data } = await $apiAuth.post('/users/cart', { p_id: id, quantity: parseInt(quantity), uid })
+            cart.value = data.result
+            const actionText = quantity > 0 ? '加入購物車成功' : '成功移除商品'
+            Swal.fire({ icon: 'success', title: '成功', text: actionText })
+          }
+        } else if (action === 'remove') {
+          //刪除的話
+          const { data } = await $apiAuth.post('/users/cart', { p_id: id, quantity: parseInt(quantity), uid })
+          cart.value = data.result
+        }
       } catch (error) {
         Swal.fire({ icon: 'error', title: '失敗', text: error?.response?.data?.message || '發生錯誤' })
       }
@@ -105,7 +140,7 @@ export const useUserStore = defineStore(
 
     const checkout = async orderData => {
       try {
-        await apiAuth.post('/orders', orderData)
+        await $apiAuth.post('/orders', orderData)
         cart.value = 0
         Swal.fire({ icon: 'success', title: '成功', text: '結帳成功' })
       } catch (error) {

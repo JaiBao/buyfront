@@ -2,19 +2,41 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <q-header elevated>
-      <q-toolbar>
-        <q-btn to="/">北台灣購物網</q-btn>
-        <q-space></q-space>
-        <q-btn class="headBtn" v-if="!isLogin" icon="mdi-account-plus" label="註冊" flat to="/register"></q-btn>
+      <q-toolbar class="bg-yellow-7 row justify-between p-0-5">
+        <div class="leftBtn col-4">
+          <!-- <q-btn text-color="black">店家菜單</q-btn>
+          <q-btn text-color="black">商業合作</q-btn> -->
+        </div>
+        <q-btn to="/"><img src="/default/logoName.png" /></q-btn>
 
-        <q-btn v-if="!isLogin" icon="login" label="登入" flat to="/login"></q-btn>
-        <q-btn class="headBtn" v-if="isLogin" icon="shopping_cart" flat to="/cart">
-          <q-badge color="green" floating>{{ cart }}</q-badge>
-          購物車
-        </q-btn>
-        <q-btn class="headBtn" v-if="isLogin" icon="summarize" label="訂單" flat to="/orders"></q-btn>
-        <q-btn class="headBtn" v-if="isLogin" icon="settings" label="管理" flat to="/setting"></q-btn>
-        <q-btn class="headBtn" v-if="isLogin" icon="logout" label="登出" flat @click="logout"></q-btn>
+        <div class="rightBtn col-4 row justify-end">
+          <q-btn class="headBtn" text-color="black" v-if="!isLogin" flat to="/register">
+            <q-icon color="black" />
+            註冊
+          </q-btn>
+
+          <q-btn v-if="!isLogin" flat to="/login" text-color="black">
+            <q-icon name="login" color="black" />
+            登入
+          </q-btn>
+          <q-btn class="headBtn" v-if="isLogin" flat to="/cart" text-color="black">
+            <q-icon name="shopping_cart" color="black" />
+            購物車
+            <q-badge color="green" floating>{{ cart }}</q-badge>
+          </q-btn>
+          <q-btn class="headBtn" v-if="isLogin" flat to="/orders" text-color="black">
+            <q-icon name="summarize" color="black" />
+            訂單
+          </q-btn>
+          <q-btn class="headBtn" v-if="isLogin" flat to="/setting" text-color="black">
+            <q-icon name="settings" color="black" />
+            管理
+          </q-btn>
+          <q-btn class="headBtn" v-if="isLogin" flat @click="logout" text-color="black">
+            <q-icon name="logout" color="black" />
+            登出
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 

@@ -40,9 +40,14 @@
               </q-input>
               <q-input v-model="userForm.address" type="text" :rules="[rules.required]" label="地址" />
               <q-input v-model="userForm.email" type="email" :rules="[rules.email, rules.required]" label="信箱" />
-              <q-input v-model="userForm.phoneNumber" type="text" :rules="[rules.required, rules.phone]" label="手機號碼" />
+
               <q-input v-model="userForm.companyName" type="text" label="公司名稱" />
               <q-input v-model="userForm.taxId" type="text" label="統一編號" />
+              <q-input v-model="userForm.phoneNumber" type="text" :rules="[rules.required, rules.phone]" label="手機號碼" mask="####-###-###" />
+              <!-- 發送驗證碼按鈕 -->
+              <q-btn @click="sendVerificationCode" :disable="sendingCode || timer > 0" :label="timer > 0 ? `重新發送 (${timer}s)` : '發送驗證碼'" color="primary" />
+
+              <q-input v-model="userForm.verificationCode" type="text" :rules="[rules.required]" label="驗證碼" />
 
               <div class="userTerms row justify-center w-100">
                 <q-checkbox v-model="userForm.termsAccepted" :rules="[rules.terms]" label="同意會員使用條款" />
@@ -89,9 +94,14 @@
               </q-input>
               <q-input v-model="adminForm.address" type="text" :rules="[rules.required]" label="地址" />
               <q-input v-model="adminForm.email" type="email" :rules="[rules.email, rules.required]" label="信箱" />
-              <q-input v-model="adminForm.phoneNumber" type="text" :rules="[rules.required, rules.phone]" label="手機號碼" />
+
               <q-input v-model="adminForm.companyName" type="text" :rules="[rules.required]" label="公司名稱" />
               <q-input v-model="adminForm.taxId" type="text" :rules="[rules.required]" label="統一編號" />
+              <q-input v-model="adminForm.phoneNumber" type="text" :rules="[rules.required, rules.phone]" label="手機號碼" mask="####-###-###" />
+              <!-- 發送驗證碼按鈕 -->
+              <q-btn @click="sendVerificationCode" :disable="sendingCode || timer > 0" :label="timer > 0 ? `重新發送 (${timer}s)` : '發送驗證碼'" color="primary" />
+
+              <q-input v-model="adminForm.verificationCode" type="text" :rules="[rules.required]" label="驗證碼" />
 
               <div class="userTerms row justify-center w-100">
                 <q-checkbox v-model="adminForm.termsAccepted" :rules="[rules.terms]" label="同意會員使用條款" />
@@ -119,17 +129,18 @@
 
 <script setup>
 import validator from 'validator'
-import { api } from '/plugins/axios'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import UserTerms from '/components/UserTerms.vue'
-
+const { $api } = useNuxtApp()
 const router = useRouter()
 
 const tab = ref('user')
 const loading = ref(false)
 const showTerms = ref(false)
 const showDatePicker = ref(false)
+const sendingCode = ref(false) // 控制發送驗證碼按鈕的狀態
+const timer = ref(0) // 倒數計時器的秒數
 
 const userForm = reactive({
   account: '',
@@ -143,6 +154,7 @@ const userForm = reactive({
   taxId: '',
   gender: '',
   birthdate: '',
+  verificationCode: '', // 新增驗證碼欄位
   termsAccepted: false
 })
 
@@ -159,6 +171,7 @@ const adminForm = reactive({
   gender: '',
   birthdate: '',
   role: 1,
+  verificationCode: '', // 新增驗證碼欄位
   termsAccepted: false
 })
 
@@ -172,7 +185,12 @@ const rules = {
   required: value => !!value || '欄位必填',
   length: value => (value.length >= 4 && value.length <= 20) || '長度必須為 4 ~ 20 個字',
   passwordConfirm: password => value => value === password || '密碼不一致',
-  phone: value => validator.isMobilePhone(value, 'zh-TW') || '手機號碼格式錯誤',
+  phone: value => {
+    // 去掉所有的 "-" 符號
+    const cleanedValue = value.replace(/-/g, '')
+    const phonePattern = /^09\d{8}$/
+    return phonePattern.test(cleanedValue) || '手機號碼格式錯誤'
+  },
   terms: value => value || '必須同意會員使用條款'
 }
 
@@ -195,6 +213,51 @@ const validateForm = form => {
   )
 }
 
+// 發送驗證碼時
+const sendVerificationCode = async () => {
+  if (!userForm.phoneNumber && !adminForm.phoneNumber) {
+    Swal.fire({
+      icon: 'error',
+      title: '失敗',
+      text: '請先輸入手機號碼'
+    })
+    return
+  }
+
+  const phoneNumber = tab.value === 'user' ? formatPhoneNumber(userForm.phoneNumber) : formatPhoneNumber(adminForm.phoneNumber)
+
+  sendingCode.value = true
+  try {
+    await $api.post('/users/send-verification-code', { phoneNumber })
+    Swal.fire({
+      icon: 'success',
+      title: '成功',
+      text: '驗證碼已發送'
+    })
+    startTimer() // 開始倒數計時
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: '失敗',
+      text: error?.response?.data?.message || '無法發送驗證碼'
+    })
+  } finally {
+    sendingCode.value = false
+  }
+}
+
+// 開始倒數計時
+const startTimer = () => {
+  timer.value = 600 // 10分鐘 = 600秒
+  const interval = setInterval(() => {
+    if (timer.value > 0) {
+      timer.value--
+    } else {
+      clearInterval(interval)
+    }
+  }, 1000)
+}
+
 const registerUser = async () => {
   if (!validateForm(userForm)) {
     Swal.fire({
@@ -206,7 +269,7 @@ const registerUser = async () => {
   }
   loading.value = true
   try {
-    await api.post('/users', userForm)
+    await $api.post('/users', userForm)
     await Swal.fire({
       icon: 'success',
       title: '成功',
@@ -234,11 +297,11 @@ const registerAdmin = async () => {
   }
   loading.value = true
   try {
-    await api.post('/users', adminForm)
+    await $api.post('/users', adminForm)
     await Swal.fire({
       icon: 'success',
       title: '成功',
-      text: '註冊成功'
+      text: '註冊成功，請等待審核'
     })
     router.push('/')
   } catch (error) {
@@ -255,6 +318,14 @@ const onDateSelected = date => {
   userForm.birthdate = date
   adminForm.birthdate = date
   showDatePicker.value = false
+}
+
+const formatPhoneNumber = phoneNumber => {
+  const cleanedValue = phoneNumber.replace(/-/g, '') // 移除 "-"
+  if (cleanedValue.startsWith('09')) {
+    return `+886${cleanedValue.slice(1)}`
+  }
+  return cleanedValue
 }
 </script>
 

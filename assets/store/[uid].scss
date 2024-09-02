@@ -1,3 +1,20 @@
+.sotreMaterial {
+  .storeImg {
+    img {
+      height: 250px;
+    }
+  }
+
+  .store {
+    .content {
+      height: 100%;
+      .description {
+        flex: 1;
+      }
+    }
+  }
+}
+
 .title {
   width: 100%;
 }
@@ -5,16 +22,16 @@
 .productCards {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
   flex-wrap: wrap;
-  padding: 0 2%;
+
   width: 100%;
   .productCard {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 24%;
+    width: 48%;
     margin: 0.5%;
   }
 }

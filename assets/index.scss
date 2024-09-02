@@ -1,13 +1,8 @@
-.title {
-  width: 100%;
-}
-
 .productCards {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   flex-wrap: wrap;
-  padding: 0 2%;
   width: 100%;
   .productCard {
     display: flex;
@@ -24,12 +19,49 @@
   flex-direction: row;
   width: 100%;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   gap: 10px;
-  margin-bottom: 20px;
-  .searchSelect {
-    min-width: 10%;
+  margin: 4% 0;
+  background: url('/index/searchBG.png') no-repeat center/cover;
+  border-radius: 10px;
+  .searchs {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: 25%;
+    .selects {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: space-around;
+      .searchSelect {
+        width: 150px;
+        background: rgba(255, 255, 255, 0.68);
+        border-radius: 10px;
+        margin: 5px;
+      }
+    }
+
+    .btns {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-around;
+      margin-top: 2px;
+      button {
+        width: 45%;
+        margin: 5px;
+      }
+    }
   }
+
+  h3 {
+    color: white;
+  }
+}
+.stores {
+  margin: 4% 0;
 }
 
 .storeCards {
@@ -37,7 +69,7 @@
   flex-direction: row;
   justify-content: flex-start;
   flex-wrap: wrap;
-  padding: 0 2%;
+
   width: 100%;
   .storeCard {
     display: flex;
@@ -46,5 +78,67 @@
     align-items: center;
     width: 24%;
     margin: 0.5%;
+  }
+}
+
+.supplys {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 4% 0;
+  .category {
+    width: 40%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    img {
+      width: 49%;
+      object-fit: contain;
+      padding: 1%;
+    }
+  }
+
+  .supply {
+    width: 55%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    .supplyCard {
+      width: 48%;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      img {
+        object-fit: contain;
+        border-radius: 10px;
+        width: 100%;
+      }
+      .tags {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        .tag {
+          border-radius: 99px;
+          border: 1px solid #eba41b;
+          margin: 10px;
+          display: flex;
+          padding: 10px;
+          justify-content: center;
+          align-items: center;
+          gap: 10px;
+
+          color: #eba41b;
+
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 160%; /* 22.4px */
+          letter-spacing: 0.28px;
+        }
+      }
+    }
   }
 }

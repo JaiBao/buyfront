@@ -1,0 +1,20 @@
+.stores {
+  margin: 4% 0;
+}
+
+.storeCards {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+
+  width: 100%;
+  .storeCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 24%;
+    margin: 0.5%;
+  }
+}

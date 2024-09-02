@@ -1,3 +1,4 @@
+<!-- pages/cart.vue -->
 <template>
   <q-page>
     <div id="cart">
@@ -58,7 +59,12 @@
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer q-mr-xs">
                       <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
-                        <q-date v-model="deliveryDate" mask="YYYY-MM-DD" @update:model-value="onDateSelected" color="accent"></q-date>
+                        <q-date
+                          v-model="deliveryDate"
+                          mask="YYYY-MM-DD"
+                          @update:model-value="onDateSelected"
+                          color="accent"
+                          :options="date => new Date(date) >= new Date(minDate)"></q-date>
                       </q-popup-proxy>
                     </q-icon>
                   </template>
@@ -88,9 +94,9 @@
 
 <script setup>
 import Swal from 'sweetalert2'
-import { apiAuth } from '/plugins/axios'
+import { DateTime } from 'luxon'
 import { useUserStore } from '/stores/user'
-
+const { $apiAuth } = useNuxtApp()
 const router = useRouter()
 const user = useUserStore()
 const { editCart, checkout } = user
@@ -120,11 +126,38 @@ const columns = [
 ]
 
 const paymentMethods = ref(['現金', '轉帳'])
+const timeSlots = ref([]) // 初始化空的 timeSlots
 
-const timeSlots = ref([])
-for (let hour = 9; hour < 18; hour++) {
-  timeSlots.value.push(`${hour}:00-${hour}:30`, `${hour}:30-${hour + 1}:00`)
+const fetchTimeSlots = async productUid => {
+  try {
+    const { data } = await $apiAuth.get(`/users/opening-hours/${productUid}`)
+    if (data.success) {
+      const openingHours = data.result.opening_hours.split('-')
+      const startHour = parseInt(openingHours[0].split(':')[0])
+      const endHour = parseInt(openingHours[1].split(':')[0])
+
+      timeSlots.value = [] // 清空之前的 timeSlots
+      for (let hour = startHour; hour < endHour; hour++) {
+        timeSlots.value.push(`${hour}:00-${hour}:30`, `${hour}:30-${hour + 1}:00`)
+      }
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: '錯誤',
+        text: '無法獲取營業時間'
+      })
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: '錯誤',
+      text: '加載營業時間失敗'
+    })
+  }
 }
+
+const today = DateTime.local().startOf('day')
+const minDate = today.plus({ days: 1 }).toISODate()
 
 const onDateSelected = date => {
   deliveryDate.value = date
@@ -143,7 +176,7 @@ watch(sameAsOrderer, newValue => {
 
 const updateCart = async (id, quantity) => {
   const idx = cart.findIndex(item => item.id === id)
-  await editCart({ id: cart[idx].product_name, quantity })
+  await editCart({ id: cart[idx].product_name, quantity, uid: cart[idx].uid, action: 'add' })
   cart[idx].quantity += quantity
   if (cart[idx].quantity <= 0) {
     cart.splice(idx, 1)
@@ -152,11 +185,30 @@ const updateCart = async (id, quantity) => {
 
 const removeItem = async id => {
   const idx = cart.findIndex(item => item.id === id)
-  await editCart({ id: cart[idx].product_name, quantity: -cart[idx].quantity })
-  cart.splice(idx, 1)
+
+  const result = await Swal.fire({
+    title: '確認刪除商品',
+    text: '您確定要刪除此商品嗎？',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '確認',
+    cancelButtonText: '取消'
+  })
+
+  if (result.isConfirmed) {
+    await editCart({ id: cart[idx].product_name, quantity: -cart[idx].quantity, uid: cart[idx].uid, action: 'remove' })
+    cart.splice(idx, 1)
+    Swal.fire({ icon: 'success', title: '成功', text: '商品已刪除' })
+  } else {
+    Swal.fire({ icon: 'info', title: '取消', text: '商品未被刪除' })
+  }
 }
 
-const openCheckoutDialog = () => {
+const openCheckoutDialog = async () => {
+  if (cart.length > 0) {
+    // 使用第一個商品的 UID 獲取營業時間並生成 timeSlots
+    await fetchTimeSlots(cart[0].details?.uid)
+  }
   checkoutDialog.value = true
 }
 
@@ -222,10 +274,10 @@ const canCheckout = computed(() => {
 
 ;(async () => {
   try {
-    const { data } = await apiAuth.get('/users/cart')
+    const { data } = await $apiAuth.get('/users/cart')
     const cartItems = data.result
     for (const item of cartItems) {
-      const { data: productData } = await apiAuth.get(`/products/${item.product_name}`)
+      const { data: productData } = await $apiAuth.get(`/products/${item.product_name}`)
       item.details = productData.result
     }
     cart.push(...cartItems)

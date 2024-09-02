@@ -2,87 +2,180 @@
   <q-page>
     <div id="orders">
       <div>
-        <div cols="12">
-          <h3 class="text-center">訂單</h3>
-        </div>
-        <q-separator />
-        <div cols="12" class="q-gutter-sm">
-          <div class="row w-100">
-            <q-select class="col-2 filterBtn" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
-            <q-input v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
-              <template v-slot:append>
-                <q-icon name="event" class="cursor-pointer q-mr-xs">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
-                    <q-date v-model="filters.deliveryDate" mask="YYYY-MM-DD" @update:model-value="onDateSelected" color="accent"></q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-            <q-input class="col-2 filterBtn" outlined v-model="filters.userName" label="用戶帳號" />
-            <q-input class="col-2 filterBtn" outlined v-model="filters.orderNumber" label="訂單編號" />
-            <q-btn class="q-ma-sm" label="搜尋" color="primary" @click="onSearch" />
-            <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
-          </div>
-          <q-table :rows="orders" :columns="columns" row-key="oid">
-            <template v-slot:body-cell-products="props">
-              <q-td :props="props">
-                <ul>
-                  <li v-for="product in props.row.products" :key="product.id">
-                    {{ product.quantity + ' 個 ' + product.product_name + ' - ' + product.total_price + ' 元' }}
-                  </li>
-                </ul>
-              </q-td>
-            </template>
-            <template v-slot:body-cell-status="props">
-              <q-td :props="props">
-                <span :class="statusColor(props.row.status)" v-if="props.row.status !== '商家取消訂單' && props.row.status !== '顧客取消訂單'">
-                  {{ props.row.status }}
-                </span>
-                <span v-else class="text-grey">
-                  {{ props.row.status }}
-                  <q-icon name="help" size="sm" v-if="props.row.cancelReason" class="cursor-pointer text-body2">
-                    <q-tooltip class="text-body1">{{ props.row.cancelReason }}</q-tooltip>
-                  </q-icon>
-                </span>
-              </q-td>
-            </template>
-            <template v-slot:body-cell-comment="props">
-              <q-td :props="props">
-                <q-icon name="help" size="sm" v-if="props.row.comment" class="cursor-pointer">
-                  <q-tooltip class="text-body1">{{ props.row.comment }}</q-tooltip>
-                </q-icon>
-              </q-td>
-            </template>
-            <template v-slot:body-cell-cancel="props">
-              <q-td :props="props">
-                <q-btn v-if="props.row.status === '未確認'" flat label="取消訂單" color="negative" @click="confirmCancelOrder(props.row)" />
-                <q-btn v-else-if="props.row.status === '商品已送出'" flat label="領收訂單" color="blue" @click="confirmReceiveOrder(props.row)" />
-                <span v-else-if="props.row.status === '商家取消訂單' || props.row.status === '顧客取消訂單'" class="text-blue">已取消訂單</span>
-                <span v-else-if="props.row.status === '已接收訂單'" class="text-blue">訂單成立</span>
-                <span v-else-if="props.row.status === '已接收訂單' || props.row.status === '訂單完成'" class="text-blue">訂單完成</span>
-              </q-td>
-            </template>
-            <template v-slot:bottom>
-              <div class="row w-100 justify-end">
-                <q-pagination
-                  v-model="page"
-                  :max="pageCount"
-                  :max-pages="6"
-                  direction-links
-                  boundary-links
-                  icon-first="skip_previous"
-                  icon-last="skip_next"
-                  icon-prev="fast_rewind"
-                  icon-next="fast_forward" />
-              </div>
-            </template>
-          </q-table>
+        <q-tabs v-model="activeTab" class="text-grey" shrink>
+          <q-tab name="incomplete" label="未完成訂單" />
+          <q-tab name="complete" label="已完成訂單" />
+        </q-tabs>
 
-          <div class="reCatch">
-            <q-icon class="pointer" name="sync" size="sm" @click="fetchOrders" />
-            <span>於 {{ counter }}秒後重新抓取</span>
-          </div>
-        </div>
+        <q-tab-panels v-model="activeTab" animated>
+          <q-tab-panel name="incomplete">
+            <div cols="12">
+              <h3 class="text-center">未完成訂單</h3>
+            </div>
+            <q-separator />
+            <div cols="12" class="q-gutter-sm">
+              <div class="row w-100">
+                <q-select class="col-2 filterBtn" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
+                <q-input v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer q-mr-xs">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
+                        <q-date v-model="filters.deliveryDate" mask="YYYY-MM-DD" @update:model-value="onDateSelected" color="accent"></q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+                <q-input class="col-2 filterBtn" outlined v-model="filters.userName" label="用戶帳號" />
+                <q-input class="col-2 filterBtn" outlined v-model="filters.orderNumber" label="訂單編號" />
+                <q-btn class="q-ma-sm" label="搜尋" color="primary" @click="onSearch('incomplete')" />
+                <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
+              </div>
+              <q-table :rows="orders" :columns="columns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+                <template v-slot:body-cell-products="props">
+                  <q-td :props="props">
+                    <ul>
+                      <li v-for="product in props.row.products" :key="product.id">
+                        {{ product.quantity + ' 個 ' + product.product_name + ' - ' + product.total_price + ' 元' }}
+                      </li>
+                    </ul>
+                  </q-td>
+                </template>
+                <template v-slot:body-cell-status="props">
+                  <q-td :props="props">
+                    <span :class="statusColor(props.row.status)" v-if="props.row.status !== '商家取消訂單' && props.row.status !== '顧客取消訂單'">
+                      {{ props.row.status }}
+                    </span>
+                    <span v-else class="text-grey">
+                      {{ props.row.status }}
+                      <q-icon name="help" size="sm" v-if="props.row.cancelReason" class="cursor-pointer text-body2">
+                        <q-tooltip class="text-body1">{{ props.row.cancelReason }}</q-tooltip>
+                      </q-icon>
+                    </span>
+                  </q-td>
+                </template>
+                <template v-slot:body-cell-comment="props">
+                  <q-td :props="props">
+                    <q-icon name="help" size="sm" v-if="props.row.comment" class="cursor-pointer">
+                      <q-tooltip class="text-body1">{{ props.row.comment }}</q-tooltip>
+                    </q-icon>
+                  </q-td>
+                </template>
+                <template v-slot:body-cell-cancel="props">
+                  <q-td :props="props">
+                    <q-btn v-if="props.row.status === '未確認'" flat label="取消訂單" color="negative" @click="confirmCancelOrder(props.row)" />
+                    <q-btn v-else-if="props.row.status === '商品已送出'" flat label="領收訂單" color="blue" @click="confirmReceiveOrder(props.row)" />
+                    <span v-else-if="props.row.status === '商家取消訂單' || props.row.status === '顧客取消訂單'" class="text-blue">已取消訂單</span>
+                    <span v-else-if="props.row.status === '已接收訂單'" class="text-blue">訂單成立</span>
+                    <span v-else-if="props.row.status === '已接收訂單' || props.row.status === '訂單完成'" class="text-blue">訂單完成</span>
+                  </q-td>
+                </template>
+                <template v-slot:bottom>
+                  <div class="row w-100 justify-end">
+                    <q-pagination
+                      v-model="page"
+                      :max="pageCount"
+                      :max-pages="6"
+                      direction-links
+                      boundary-links
+                      icon-first="skip_previous"
+                      icon-last="skip_next"
+                      icon-prev="fast_rewind"
+                      icon-next="fast_forward" />
+                  </div>
+                </template>
+              </q-table>
+
+              <div class="reCatch">
+                <q-icon class="pointer" name="sync" size="sm" @click="fetchOrders('incomplete')" />
+                <span>於 {{ counter }}秒後重新抓取</span>
+              </div>
+            </div>
+          </q-tab-panel>
+
+          <q-tab-panel name="complete">
+            <div cols="12">
+              <h3 class="text-center">已完成訂單</h3>
+            </div>
+            <q-separator />
+            <div cols="12" class="q-gutter-sm">
+              <div class="row w-100">
+                <q-select class="col-2 filterBtn" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
+                <q-input v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer q-mr-xs">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
+                        <q-date v-model="filters.deliveryDate" mask="YYYY-MM-DD" @update:model-value="onDateSelected" color="accent"></q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+                <q-input class="col-2 filterBtn" outlined v-model="filters.userName" label="用戶帳號" />
+                <q-input class="col-2 filterBtn" outlined v-model="filters.orderNumber" label="訂單編號" />
+                <q-btn class="q-ma-sm" label="搜尋" color="primary" @click="onSearch('complete')" />
+                <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
+              </div>
+              <q-table :rows="orders" :columns="columns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+                <template v-slot:body-cell-products="props">
+                  <q-td :props="props">
+                    <ul>
+                      <li v-for="product in props.row.products" :key="product.id">
+                        {{ product.quantity + ' 個 ' + product.product_name + ' - ' + product.total_price + ' 元' }}
+                      </li>
+                    </ul>
+                  </q-td>
+                </template>
+                <template v-slot:body-cell-status="props">
+                  <q-td :props="props">
+                    <span :class="statusColor(props.row.status)" v-if="props.row.status !== '商家取消訂單' && props.row.status !== '顧客取消訂單'">
+                      {{ props.row.status }}
+                    </span>
+                    <span v-else class="text-grey">
+                      {{ props.row.status }}
+                      <q-icon name="help" size="sm" v-if="props.row.cancelReason" class="cursor-pointer text-body2">
+                        <q-tooltip class="text-body1">{{ props.row.cancelReason }}</q-tooltip>
+                      </q-icon>
+                    </span>
+                  </q-td>
+                </template>
+                <template v-slot:body-cell-comment="props">
+                  <q-td :props="props">
+                    <q-icon name="help" size="sm" v-if="props.row.comment" class="cursor-pointer">
+                      <q-tooltip class="text-body1">{{ props.row.comment }}</q-tooltip>
+                    </q-icon>
+                  </q-td>
+                </template>
+                <template v-slot:body-cell-cancel="props">
+                  <q-td :props="props">
+                    <q-btn v-if="props.row.status === '未確認'" flat label="取消訂單" color="negative" @click="confirmCancelOrder(props.row)" />
+                    <q-btn v-else-if="props.row.status === '商品已送出'" flat label="領收訂單" color="blue" @click="confirmReceiveOrder(props.row)" />
+                    <span v-else-if="props.row.status === '商家取消訂單' || props.row.status === '顧客取消訂單'" class="text-blue">已取消訂單</span>
+                    <span v-else-if="props.row.status === '已接收訂單'" class="text-blue">訂單成立</span>
+                    <span v-else-if="props.row.status === '已接收訂單' || props.row.status === '訂單完成'" class="text-blue">訂單完成</span>
+                  </q-td>
+                </template>
+                <template v-slot:bottom>
+                  <div class="row w-100 justify-end">
+                    <q-pagination
+                      v-model="page"
+                      :max="pageCount"
+                      :max-pages="6"
+                      direction-links
+                      boundary-links
+                      icon-first="skip_previous"
+                      icon-last="skip_next"
+                      icon-prev="fast_rewind"
+                      icon-next="fast_forward" />
+                  </div>
+                </template>
+              </q-table>
+
+              <div class="reCatch">
+                <q-icon class="pointer" name="sync" size="sm" @click="fetchOrders('complete')" />
+                <span>於 {{ counter }}秒後重新抓取</span>
+              </div>
+            </div>
+          </q-tab-panel>
+        </q-tab-panels>
       </div>
 
       <q-dialog v-model="showCancelDialog" persistent>
@@ -116,9 +209,8 @@
 </template>
 
 <script setup>
-import { apiAuth } from '/plugins/axios'
 import Swal from 'sweetalert2'
-
+const { $apiAuth } = useNuxtApp()
 const orders = ref([])
 const showCancelDialog = ref(false)
 const showReceiveDialog = ref(false)
@@ -129,16 +221,42 @@ const cancelReason = ref('')
 const counter = ref(60)
 const page = ref(1)
 const pageCount = ref(1)
+const activeTab = ref('incomplete')
 const filters = ref({
   status: '',
   deliveryDate: '',
   userName: '',
   orderNumber: ''
 })
-let intervalId = null
 
-const orderFilterOptions = ['未確認', '已接收訂單', '商品已送出', '訂單完成', '顧客取消訂單', '商家取消訂單']
-const statusOptions = orderFilterOptions.map(status => ({ label: status, value: status }))
+const pagination = reactive({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  totalPages: 1
+})
+let intervalId = null
+const statusOptions = ref([
+  { label: '未確認', value: '未確認' },
+  { label: '已接收訂單', value: '已接收訂單' },
+  { label: '商品已送出', value: '商品已送出' }
+])
+
+const updateStatusOptions = tab => {
+  if (tab === 'incomplete') {
+    statusOptions.value = [
+      { label: '未確認', value: '未確認' },
+      { label: '已接收訂單', value: '已接收訂單' },
+      { label: '商品已送出', value: '商品已送出' }
+    ]
+  } else if (tab === 'complete') {
+    statusOptions.value = [
+      { label: '訂單完成', value: '訂單完成' },
+      { label: '顧客取消訂單', value: '顧客取消訂單' },
+      { label: '商家取消訂單', value: '商家取消訂單' }
+    ]
+  }
+}
 
 const columns = [
   { name: 'oid', required: true, label: '訂單編號', align: 'center', field: row => row.oid, format: val => `${val}`, sortable: true },
@@ -178,14 +296,15 @@ const onDateSelected = date => {
   showDatePicker.value = false
 }
 
-const onSearch = () => {
+const onSearch = tab => {
   page.value = 1
-  fetchOrders()
+  fetchOrders(tab)
 }
 
-const fetchOrders = async () => {
+const fetchOrders = async tab => {
+  const url = tab === 'complete' ? '/orders/completed' : '/orders/incomplete'
   try {
-    const { data } = await apiAuth.get('/orders', {
+    const { data } = await $apiAuth.get(url, {
       params: {
         page: page.value,
         ...filters.value
@@ -216,7 +335,7 @@ const clearFilters = () => {
     userName: '',
     orderNumber: ''
   }
-  fetchOrders()
+  fetchOrders(activeTab.value)
 }
 
 const confirmCancelOrder = order => {
@@ -240,7 +359,7 @@ const cancelOrder = async () => {
   }
 
   try {
-    await apiAuth.put('/orders/status', {
+    await $apiAuth.put('/orders/status', {
       orderId: orderToCancel.value.oid,
       status: '顧客取消訂單',
       cancelReason: cancelReason.value
@@ -253,7 +372,7 @@ const cancelOrder = async () => {
       title: '成功',
       text: '訂單已取消'
     })
-    fetchOrders()
+    fetchOrders(activeTab.value)
   } catch (error) {
     console.error('Error canceling order:', error)
     Swal.fire({
@@ -266,7 +385,7 @@ const cancelOrder = async () => {
 
 const receiveOrder = async () => {
   try {
-    await apiAuth.put('/orders/status', {
+    await $apiAuth.put('/orders/status', {
       orderId: orderToReceive.value.oid,
       status: '訂單完成'
     })
@@ -277,7 +396,7 @@ const receiveOrder = async () => {
       title: '成功',
       text: '訂單已完成'
     })
-    fetchOrders()
+    fetchOrders(activeTab.value)
   } catch (error) {
     console.error('Error updating order status:', error)
     Swal.fire({
@@ -293,13 +412,13 @@ const startTimer = () => {
     if (counter.value > 0) {
       counter.value--
     } else {
-      fetchOrders()
+      fetchOrders(activeTab.value)
     }
   }, 1000)
 }
 
 onMounted(() => {
-  fetchOrders()
+  fetchOrders(activeTab.value)
   startTimer()
 })
 
@@ -307,7 +426,12 @@ onUnmounted(() => {
   clearInterval(intervalId)
 })
 
-watch(page, fetchOrders)
+watch(activeTab, newTab => {
+  updateStatusOptions(newTab)
+  fetchOrders(newTab)
+})
+
+watch(page, () => fetchOrders(activeTab.value))
 </script>
 
 <style lang="scss" scoped>

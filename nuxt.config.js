@@ -3,8 +3,8 @@
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
-      gtagId: 'G-X324G8MHR2',
-      gtmId: 'GTM-KDPQWSKX', //  GTM ID
+      gtagId: 'G-T8PPRE6ZW8',
+      gtmId: 'GTM-TDBTJ49D', //  GTM ID
       quantityApiBaseUrl: process.env.QUANTITY_API_BASE_URL || 'https://www.dtstw.com/api',
       posApiBaseUrl: process.env.POS_API_BASE_URL || 'http://tods.dtstw.com/api',
       bingApiBaseUrl: process.env.BING_API_BASE_URL || 'https://www.chinabing.net/tods',
@@ -43,7 +43,7 @@ export default defineNuxtConfig({
   },
   // 網站訊息
   site: {
-    url: 'https://www.beitaiwan.tw'
+    url: 'https://www.beifoodorder.com'
   },
   // 路由配置
   router: {
