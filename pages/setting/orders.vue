@@ -88,7 +88,11 @@
               <q-td :props="props">
                 <ul>
                   <li v-for="product in props.row.products" :key="product.id">
-                    {{ product.quantity + ' 個 ' + (product.product_name || '未知商品') + ' - ' + product.total_price + ' 元' }}
+                    {{ product.quantity }} 個 {{ product.product_name }}
+                    <span v-if="product.options && product.options.length > 0">
+                      {{ ' ' + product.options.map(option => option.option_value).join(' / ') }}
+                    </span>
+                    - {{ product.total_price }} 元
                     <!-- <span v-if="canUpdateProduct" class="pointer" :class="statusColor(product.status)" @click="openProductStatusDialog(product)">
                       {{ product.status }}
                     </span> -->

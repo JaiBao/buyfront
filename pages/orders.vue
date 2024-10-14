@@ -36,7 +36,11 @@
                   <q-td :props="props">
                     <ul>
                       <li v-for="product in props.row.products" :key="product.id">
-                        {{ product.quantity + ' 個 ' + product.product_name + ' - ' + product.total_price + ' 元' }}
+                        {{ product.quantity }} 個 {{ product.product_name }}
+                        <span v-if="product.options && product.options.length > 0">
+                          {{ ' ' + product.options.map(option => option.option_value).join(' / ') }}
+                        </span>
+                        - {{ product.total_price }} 元
                       </li>
                     </ul>
                   </q-td>
@@ -105,7 +109,15 @@
                       <q-separator />
                       <div class="q-my-sm">
                         訂單商品
-                        <li v-for="product in order.products" :key="product.id">{{ product.quantity }} 個 {{ product.product_name }} - {{ product.total_price }} 元</li>
+                        <ul>
+                          <li v-for="product in order.products" :key="product.id">
+                            {{ product.quantity }} 個 {{ product.product_name }}
+                            <span v-if="product.options && product.options.length > 0">
+                              {{ ' ' + product.options.map(option => option.option_value).join(' / ') }}
+                            </span>
+                            - {{ product.total_price }} 元
+                          </li>
+                        </ul>
                       </div>
                       <q-separator />
 
@@ -170,7 +182,11 @@
                   <q-td :props="props">
                     <ul>
                       <li v-for="product in props.row.products" :key="product.id">
-                        {{ product.quantity + ' 個 ' + product.product_name + ' - ' + product.total_price + ' 元' }}
+                        {{ product.quantity }} 個 {{ product.product_name }}
+                        <span v-if="product.options && product.options.length > 0">
+                          {{ ' ' + product.options.map(option => option.option_value).join(' / ') }}
+                        </span>
+                        - {{ product.total_price }} 元
                       </li>
                     </ul>
                   </q-td>
@@ -239,7 +255,15 @@
                       <q-separator />
                       <div class="q-my-sm">
                         訂單商品
-                        <li v-for="product in order.products" :key="product.id">{{ product.quantity }} 個 {{ product.product_name }} - {{ product.total_price }} 元</li>
+                        <ul>
+                          <li v-for="product in order.products" :key="product.id">
+                            {{ product.quantity }} 個 {{ product.product_name }}
+                            <span v-if="product.options && product.options.length > 0">
+                              {{ ' ' + product.options.map(option => option.option_value).join(' / ') }}
+                            </span>
+                            - {{ product.total_price }} 元
+                          </li>
+                        </ul>
                       </div>
                       <q-separator />
                       <div v-if="order.comment">
