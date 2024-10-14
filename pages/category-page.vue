@@ -13,7 +13,7 @@
       </div> -->
       <div class="bottom">
         <h3>{{ category }}</h3>
-        <div class="searchs">
+        <!-- <div class="searchs">
           <div class="selects">
             <q-input v-model="searchProduct" label="商品名稱" class="searchSelect" filled />
           </div>
@@ -21,7 +21,7 @@
             <q-btn color="primary" @click="searchProducts">搜尋</q-btn>
             <q-btn color="red" @click="clearSearch">清空</q-btn>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
     <!-- <div class="nomalTitle">
@@ -43,6 +43,51 @@
 <script setup>
 import Swal from 'sweetalert2'
 import { useNuxtApp } from '#app'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜種類瀏覽',
+  meta: [
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜種類瀏覽'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/caregory-page'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
 
 const route = useRoute()
 const router = useRouter()

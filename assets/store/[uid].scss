@@ -1,7 +1,12 @@
 .sotreMaterial {
   .storeImg {
+    display: flex;
+    flex-direction: column;
+    // justify-content: space-between;
     img {
-      height: 250px;
+      // width: 100%;
+      object-fit: cover;
+      display: none;
     }
   }
 
@@ -10,6 +15,26 @@
       height: 100%;
       .description {
         flex: 1;
+      }
+    }
+  }
+  @media (min-width: 768px) {
+    padding-top: 3%;
+    .storeImg {
+      flex-direction: row;
+      justify-content: space-between;
+
+      img {
+        display: inline;
+        object-fit: cover;
+        width: 43%;
+        aspect-ratio: 4 / 3;
+        // max-height: 500px;
+        // max-width: 450px;
+      }
+
+      .store {
+        width: 50%;
       }
     }
   }
@@ -31,8 +56,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 48%;
+    width: 100%;
     margin: 0.5%;
+  }
+  @media (min-width: 1024px) {
+    .productCard {
+      width: 48%;
+    }
   }
 }
 .search-bar {
@@ -74,5 +104,25 @@
   img {
     width: 100%;
     height: auto;
+  }
+}
+.showDialogCard {
+  position: relative;
+  padding: 1%;
+  min-width: 60%;
+  .text-title {
+    font-size: 30px;
+  }
+  .text-content {
+    font-size: 20px;
+  }
+  .close-dialog-button {
+    position: absolute;
+    top: 5px;
+    right: 1%;
+    z-index: 2;
+    @media (min-width: 1024px) {
+      right: 20px;
+    }
   }
 }

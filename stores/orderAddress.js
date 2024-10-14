@@ -4,10 +4,10 @@ import { defineStore } from 'pinia'
 export const useOrderAddress = defineStore('main', {
   state: () => ({
     addressoptions: [
-      { id: 1, name: '基隆市' },
+      // { id: 1, name: '基隆市' }
       { id: 2, name: '臺北市' },
-      { id: 3, name: '新北市' },
-      { id: 4, name: '桃園市' }
+      { id: 3, name: '新北市' }
+      // { id: 4, name: '桃園市' }
     ],
     cityOptions: ref([]),
     citiesByAddress: {
@@ -267,9 +267,9 @@ export const useOrderAddress = defineStore('main', {
   }),
   actions: {
     updateCityOptions(addressId) {
-      console.log('Selected Address ID:', addressId)
+      //console.log('Selected Address ID:', addressId)
       this.cityOptions.value = this.citiesByAddress[addressId] || []
-      console.log('Updated City Options:', this.cityOptions)
+      //console.log('Updated City Options:', this.cityOptions)
     }
   }
 })

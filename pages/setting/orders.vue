@@ -2,15 +2,32 @@
 <template>
   <q-page>
     <div>
-      <div class="adminOrdersTable">
-        <div>
-          <h3 class="text-center">訂單</h3>
+      <div class="adminOrders">
+        <div class="row items-center nomalTitle3 justify-start">
+          <p class="text-center">訂單資料</p>
+          <q-btn class="q-ma-sm" label="匯出為Excel" color="yellow-7" text-color="black" @click="showExportDialog = true" />
         </div>
-        <q-separator />
+
         <div>
-          <div class="row w-100">
-            <q-select class="col-2 filterBtn" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
-            <q-input class="filterBtn" v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
+          <div class="search">
+            <q-select
+              :class="[filters.status ? 'haveText' : 'noText']"
+              class="searchInput q-mr-sm"
+              outlined
+              v-model="filters.status"
+              :options="statusOptions"
+              label="訂單狀態"
+              clearable
+              map-options
+              emit-value />
+            <!-- <q-input
+              :class="[filters.deliveryDate ? 'haveText' : 'noText']"
+              class="searchInput q-mr-sm"
+              v-model="filters.deliveryDate"
+              label="送達日期"
+              outlined
+              rounded
+              mask="####-##-##">
               <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer q-mr-xs">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
@@ -18,13 +35,25 @@
                   </q-popup-proxy>
                 </q-icon>
               </template>
-            </q-input>
+            </q-input> -->
 
-            <q-input class="col-2 filterBtn" outlined v-model="filters.userName" label="用戶帳號" />
-            <q-input class="col-2 filterBtn" outlined v-model="filters.orderNumber" label="訂單編號" />
+            <!-- 日期篩選選項 -->
+            <q-select
+              :class="[filters.selectedPeriod ? 'haveText' : 'noText']"
+              class="searchInput q-mr-sm"
+              outlined
+              v-model="filters.selectedPeriod"
+              :options="periodOptions"
+              label="送達日期"
+              clearable
+              map-options
+              emit-value
+              @update:model-value="onPeriodChange" />
+            <q-input :class="[filters.userName ? 'haveText' : 'noText']" class="searchInput q-mr-sm" outlined v-model="filters.userName" label="用戶帳號" />
+            <q-input :class="[filters.orderNumber ? 'haveText' : 'noText']" class="searchInput q-mr-sm" outlined v-model="filters.orderNumber" label="訂單編號" />
 
             <!-- 新增的日期區間篩選 -->
-            <q-input class="col-2 filterBtn" outlined v-model="filters.startDate" label="開始日期" mask="####-##-##">
+            <!-- <q-input class="searchInput q-mr-sm" outlined v-model="filters.startDate" label="開始日期" mask="####-##-##">
               <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer q-mr-xs">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showStartDatePicker">
@@ -33,7 +62,7 @@
                 </q-icon>
               </template>
             </q-input>
-            <q-input class="col-2 filterBtn" outlined v-model="filters.endDate" label="結束日期" mask="####-##-##">
+            <q-input class="searchInput q-mr-sm" outlined v-model="filters.endDate" label="結束日期" mask="####-##-##">
               <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer q-mr-xs">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showEndDatePicker">
@@ -41,12 +70,11 @@
                   </q-popup-proxy>
                 </q-icon>
               </template>
-            </q-input>
+            </q-input> -->
             <!-- 結束區間篩選 -->
 
-            <q-btn class="q-ma-sm" label="搜尋" color="primary" @click="onSearch" />
-            <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
-            <q-btn class="q-ma-sm" label="匯出為Excel" color="secondary" @click="exportToExcel" />
+            <q-btn class="q-mx-sm searchBtn" label="搜尋" color="yellow-7" text-color="black" @click="onSearch" />
+            <q-btn class="q-mx-sm searchBtn" label="清空" color="yellow-7" text-color="black" @click="clearFilters" />
 
             <!-- 
             <q-btn v-if="isSuperAdmin" color="primary" class="q-ma-sm" @click="openStatusDialog">
@@ -55,7 +83,7 @@
             </q-btn> -->
           </div>
 
-          <q-table :rows="orders" :columns="computedColumns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+          <q-table :rows="orders" :columns="computedColumns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination" class="adminOrdersTable">
             <template v-slot:body-cell-products="props">
               <q-td :props="props">
                 <ul>
@@ -126,8 +154,9 @@
             <template v-slot:bottom>
               <div class="row w-100 justify-between">
                 <!-- 顯示總營業額 -->
-                <div class="q-mt-md text-red" style="font-size: 18px">
-                  <p class="ma-0">總營業額: {{ totalRevenue }} 元</p>
+                <div class="q-mt-md text-red row items-center" style="font-size: 18px">
+                  <q-icon name="attach_money" color="green" size="md"></q-icon>
+                  <p class="mg-0 text-green">總營業額: {{ totalRevenue }} 元</p>
                 </div>
 
                 <q-pagination
@@ -140,7 +169,9 @@
                   icon-first="skip_previous"
                   icon-last="skip_next"
                   icon-prev="fast_rewind"
-                  icon-next="fast_forward" />
+                  icon-next="fast_forward"
+                  color="grey-8"
+                  active-color="yellow-7" />
               </div>
             </template>
           </q-table>
@@ -179,7 +210,7 @@
         </div>
       </div>
       <!-- 使用者資料Dialog -->
-      <q-dialog v-model="showUserDialog" persistent>
+      <q-dialog v-model="showUserDialog">
         <q-card>
           <q-card-section>
             <div class="text-h6">用戶資料</div>
@@ -206,15 +237,17 @@
               <strong>訂購人:</strong>
               {{ selectedOrder.name }}
               <span class="text-red" v-if="selectedOrder.gender">{{ genderChinese(selectedOrder.gender) }}</span>
-            </p>
-            <p>
-              <strong>生日:</strong>
-              {{ new Date(selectedOrder.birthdate).toLocaleDateString() }}
+
               <span v-if="isBirthday(selectedOrder.birthdate)" class="birthday-icon">
                 <q-icon name="cake" size="sm" color="red" />
                 <span class="birthday-message">生日快樂!</span>
               </span>
             </p>
+            <!-- <p>
+              <strong>生日:</strong>
+              {{ new Date(selectedOrder.birthdate).toLocaleDateString() }}
+             
+            </p> -->
             <p>
               <strong>訂購人手機:</strong>
               {{ selectedOrder.phone }}
@@ -226,6 +259,10 @@
             <p>
               <strong>公司名稱:</strong>
               {{ selectedOrder.company_name }}
+            </p>
+            <p>
+              <strong>地址:</strong>
+              {{ selectedOrder.address }}
             </p>
             <p>
               <strong>統編:</strong>
@@ -320,6 +357,71 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
+      <!-- exel匯出 -->
+      <q-dialog v-model="showExportDialog" persistent>
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">匯出Excel資料</div>
+          </q-card-section>
+          <q-card-section>
+            <q-input outlined class="q-mb-sm" v-model="exportFilters.startDate" label="開始日期" mask="####-##-##">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showStartDatePicker">
+                    <q-date v-model="exportFilters.startDate" mask="YYYY-MM-DD" color="accent" @update:model-value="onExportStartDateSelected" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+            <q-input outlined v-model="exportFilters.endDate" label="結束日期" mask="####-##-##">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showEndDatePicker">
+                    <q-date v-model="exportFilters.endDate" mask="YYYY-MM-DD" color="accent" @update:model-value="onExportEndDateSelected" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="取消" text-color="red" @click="showExportDialog = false" />
+            <q-btn outlined label="匯出" color="yellow-7" text-color="black" @click="confirmExport" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <!-- 自訂日期範圍 Dialog -->
+      <q-dialog v-model="showCustomDateDialog" persistent>
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">選擇日期區間</div>
+          </q-card-section>
+          <q-card-section>
+            <q-input v-model="customStartDate" label="開始日期" mask="####-##-##" outlined>
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showCustomStartDatePicker">
+                    <q-date v-model="customStartDate" mask="YYYY-MM-DD" color="accent" @update:model-value="onCustomStartDateSelected" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+            <q-input v-model="customEndDate" label="結束日期" mask="####-##-##" outlined class="q-mt-sm">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showCustomEndDatePicker">
+                    <q-date v-model="customEndDate" mask="YYYY-MM-DD" color="accent" @update:model-value="onCustomEndDateSelected" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="取消" color="secondary" @click="showCustomDateDialog = false" />
+            <q-btn flat label="確認" color="primary" @click="applyCustomDate" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </q-page>
 </template>
@@ -331,10 +433,92 @@ import { useUserStore } from '/stores/user'
 import { storeToRefs } from 'pinia'
 import { useOrderStatusHistoryStore } from '/stores/orderStatusHistory'
 import io from 'socket.io-client'
+import { DateTime } from 'luxon'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜訂單',
+  meta: [
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜訂單'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/setting/orders'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
+
 const { $apiAuth } = useNuxtApp()
 definePageMeta({
   layout: 'admin'
 })
+
+const today = DateTime.now()
+const currentMonthStart = today.startOf('month').toISODate() // 當月第一天
+const currentMonthEnd = today.endOf('month').toISODate() // 當月最後一天
+const lastMonthStart = today.minus({ months: 1 }).startOf('month').toISODate() // 上個月第一天
+const lastMonthEnd = today.minus({ months: 1 }).endOf('month').toISODate() // 上個月最後一天
+const twoMonthsAgoStart = today.minus({ months: 2 }).startOf('month').toISODate() // 上上個月第一天
+const twoMonthsAgoEnd = today.minus({ months: 2 }).endOf('month').toISODate() // 上上個月最後一天
+
+const customStartDate = ref('')
+const customEndDate = ref('')
+const showCustomDateDialog = ref(false)
+
+const periodOptions = [
+  { label: '當日', value: 'today' },
+  { label: '當月', value: 'currentMonth' },
+  { label: '上個月', value: 'lastMonth' },
+  // { label: '上上個月', value: 'twoMonthsAgo' },
+  { label: '次月', value: 'nextMonth' },
+  { label: '自行輸入', value: 'custom' }
+]
+
+const applyCustomDate = () => {
+  if (customStartDate.value && customEndDate.value) {
+    filters.value.startDate = customStartDate.value
+    filters.value.endDate = customEndDate.value
+    showCustomDateDialog.value = false
+  } else {
+    Swal.fire({
+      icon: 'warning',
+      title: '日期區間錯誤',
+      text: '請選擇正確的開始和結束日期'
+    })
+  }
+}
 
 const orders = ref([])
 const userStore = useUserStore()
@@ -345,8 +529,11 @@ const showProductStatusDialog = ref(false)
 const showOrderStatusDialog = ref(false)
 const showManufacturerDialog = ref(false)
 const showStatusDialog = ref(false)
-const showStartDatePicker = ref(false) // 用于显示开始日期选择器
-const showEndDatePicker = ref(false) // 用于显示结束日期选择器
+const showStartDatePicker = ref(false)
+const showEndDatePicker = ref(false)
+const showCustomStartDatePicker = ref(false)
+const showCustomEndDatePicker = ref(false)
+
 const selectedOrder = ref({})
 const showDatePicker = ref(false)
 const orderToCancel = ref(null)
@@ -365,9 +552,9 @@ const { newOrderStatusCount } = storeToRefs(orderStatusHistoryStore)
 const genderChinese = gender => {
   switch (gender) {
     case 'male':
-      return '男'
+      return '先生'
     case 'female':
-      return '女'
+      return '小姐'
     default:
       return ''
   }
@@ -379,15 +566,27 @@ const isBirthday = birthdate => {
   return today.getMonth() === birthDate.getMonth() && today.getDate() === birthDate.getDate()
 }
 
+const showExportDialog = ref(false)
+const exportFilters = reactive({
+  startDate: '',
+  endDate: ''
+})
+
+const confirmExport = () => {
+  showExportDialog.value = false
+  exportToExcel()
+}
+
 const page = ref(1)
 const pageCount = ref(1)
 
-const today = new Date().toISOString().split('T')[0]
+const today2 = new Date().toISOString().split('T')[0]
 const filters = ref({
   status: '',
-  deliveryDate: today,
-  startDate: '', // 新增的開始日期過濾器
-  endDate: '',
+  deliveryDate: '',
+  selectedPeriod: 'today', // 預設為當日
+  startDate: today.toISODate(), // 預設為當日
+  endDate: today.toISODate(), // 預設為當日
   userName: '',
   orderNumber: ''
 })
@@ -401,9 +600,33 @@ const pagination = reactive({
 let intervalId = null
 
 const productStatusOptions = ['未確認', '拒絕', '接受', '已送出']
-const orderStatusOptions = ['未確認', '已接收訂單', '商品已送出', '訂單完成']
+const orderStatusOptions = ['未確認', '已接收訂單', '商品已送出']
 const orderFilterOptions = ['未確認', '已接收訂單', '商品已送出', '訂單完成', '顧客取消訂單', '商家取消訂單']
 const statusOptions = orderFilterOptions.map(status => ({ label: status, value: status }))
+
+// 處理匯出對話框的開始日期選擇
+const onExportStartDateSelected = date => {
+  exportFilters.startDate = date
+  showStartDatePicker.value = false // 選擇日期後自動關閉
+}
+
+// 處理匯出對話框的結束日期選擇
+const onExportEndDateSelected = date => {
+  exportFilters.endDate = date
+  showEndDatePicker.value = false // 選擇日期後自動關閉
+}
+
+// 處理自訂日期範圍對話框的開始日期選擇
+const onCustomStartDateSelected = date => {
+  customStartDate.value = date
+  showCustomStartDatePicker.value = false // 選擇日期後自動關閉
+}
+
+// 處理自訂日期範圍對話框的結束日期選擇
+const onCustomEndDateSelected = date => {
+  customEndDate.value = date
+  showCustomEndDatePicker.value = false // 選擇日期後自動關閉
+}
 
 // 處理開始日期選擇的函數
 const onStartDateSelected = date => {
@@ -431,13 +654,13 @@ const commonColumns = [
   { name: 'date', align: 'center', label: '訂購日期', field: row => new Date(row.date).toLocaleDateString(), sortable: true },
   { name: 'deliveryDate', align: 'center', label: '送達日期', field: row => new Date(row.delivery_date).toLocaleDateString(), sortable: true },
   { name: 'deliveryTime', align: 'center', label: '送達時段', field: row => row.delivery_time, sortable: true },
-  { name: 'totalPrice', align: 'left', label: '金額', field: row => row.total_price, sortable: true },
-  { name: 'paymentMethod', align: 'center', label: '付款方式', field: row => row.payment_method, sortable: true },
-  { name: 'products', align: 'left', label: '商品/商品狀態異動(廠商)', field: 'products', sortable: false },
-  { name: 'user', align: 'center', label: '用戶帳號', field: 'user_account', sortable: true },
-  { name: 'status', align: 'center', label: '訂單狀態/更改(管理者)', field: 'status', sortable: true },
+  { name: 'totalPrice', align: 'center', label: '金額', field: row => row.order_total, sortable: false },
+  { name: 'paymentMethod', align: 'center', label: '付款方式', field: row => row.payment_method, sortable: false },
+  { name: 'products', align: 'left', label: '商品', field: 'products', sortable: false },
+  { name: 'user', align: 'center', label: '用戶帳號', field: 'user_account', sortable: false },
+  { name: 'status', align: 'center', label: '訂單狀態/更改', field: 'status', sortable: true },
   { name: 'comment', align: 'center', label: '備註', field: 'comment', sortable: false },
-  { name: 'cancel', align: 'center', label: '操作', field: 'cancel', sortable: false } // 将 "操作" 列包含在 commonColumns 中
+  { name: 'cancel', align: 'center', label: '操作', field: 'cancel', sortable: false } //  "操作" 列包含在 commonColumns 中
 ]
 
 const adminColumns = [
@@ -481,6 +704,64 @@ const statusColor = status => {
       return ''
   }
 }
+
+watch(
+  () => filters.value.deliveryDate,
+  newDate => {
+    if (newDate) {
+      filters.value.selectedPeriod = ''
+      filters.value.startDate = ''
+      filters.value.endDate = ''
+    }
+  }
+)
+
+watch(
+  () => filters.value.selectedPeriod,
+  newPeriod => {
+    if (newPeriod) {
+      filters.value.deliveryDate = ''
+      onPeriodChange(newPeriod) // 根據選擇的區間選項設置 startDate 和 endDate
+    }
+  }
+)
+
+// 日期區間處理邏輯
+const onPeriodChange = period => {
+  switch (period) {
+    case 'currentMonth':
+      filters.value.startDate = currentMonthStart
+      filters.value.endDate = currentMonthEnd
+      break
+    case 'lastMonth':
+      filters.value.startDate = lastMonthStart
+      filters.value.endDate = lastMonthEnd
+      break
+    case 'twoMonthsAgo':
+      filters.value.startDate = twoMonthsAgoStart
+      filters.value.endDate = twoMonthsAgoEnd
+      break
+    case 'nextMonth': // 新增的次月邏輯
+      const nextMonthStart = today.plus({ months: 1 }).startOf('month').toISODate()
+      const nextMonthEnd = today.plus({ months: 1 }).endOf('month').toISODate()
+      filters.value.startDate = nextMonthStart
+      filters.value.endDate = nextMonthEnd
+      break
+    case 'custom':
+      showCustomDateDialog.value = true
+      break
+    case 'today': // 新增的當日邏輯
+      const currentDate = today.toISODate()
+      filters.value.startDate = currentDate
+      filters.value.endDate = currentDate
+      break
+    default:
+      filters.value.startDate = ''
+      filters.value.endDate = ''
+      break
+  }
+}
+
 const onSearch = () => {
   page.value = 1
   fetchOrders()
@@ -494,12 +775,13 @@ const fetchOrders = async () => {
         ...filters.value
       }
     })
-    const tempOrders = data.result.map(order => {
-      order.total_price = order.products.reduce((total, product) => total + parseFloat(product.total_price), 0)
-      return order
-    })
+    // const tempOrders = data.result.map(order => {
+    //   order.total_price = order.products.reduce((total, product) => total + parseFloat(product.total_price), 0)
+    //   return order
+    // })
 
-    orders.value = tempOrders
+    // orders.value = tempOrders
+    orders.value = data.result
     pageCount.value = data.totalPages
     totalRevenue.value = data.totalRevenue
     counter.value = 60 // 重置
@@ -660,15 +942,13 @@ const updateOrderStatus = async () => {
   }
 }
 
-const exportToExcel = async () => {
+const exportToExcel = async s => {
   try {
     const { data } = await $apiAuth.get('/orders/completedorder', {
       params: {
         uid: userStore.uid,
-        startDate: filters.value.startDate,
-        endDate: filters.value.endDate,
-        userName: filters.value.userName,
-        orderNumber: filters.value.orderNumber
+        startDate: exportFilters.startDate,
+        endDate: exportFilters.endDate
       }
     })
 
@@ -735,8 +1015,8 @@ const exportToExcel = async () => {
     })
 
     // 生成文件名
-    const startDate = filters.value.startDate ? filters.value.startDate.replace(/-/g, '') : '開始日期未指定'
-    const endDate = filters.value.endDate ? filters.value.endDate.replace(/-/g, '') : '結束日期未指定'
+    const startDate = exportFilters.startDate ? exportFilters.startDate.replace(/-/g, '') : '開始日期未指定'
+    const endDate = exportFilters.endDate ? exportFilters.endDate.replace(/-/g, '') : '結束日期未指定'
     const fileName = `${startDate}至${endDate} 訂單.xlsx`
 
     // 將工作簿轉換為緩衝區並觸發下載
@@ -761,7 +1041,7 @@ const exportToExcel = async () => {
 const clearFilters = () => {
   filters.value = {
     status: '',
-    deliveryDate: today,
+    deliveryDate: today2,
     startDate: '', // 清空開始日期
     endDate: '', // 清空結束日期
     userName: '',
@@ -782,16 +1062,26 @@ const startTimer = () => {
 }
 
 const initWebSocket = () => {
-  const apiBaseUrl = useRuntimeConfig().public.apiBaseUrl
-  const protocol = apiBaseUrl.startsWith('https') ? 'wss' : 'ws'
-  const wsUrl = apiBaseUrl.replace(/^http/, protocol)
-  console.log('WebSocket URL:', wsUrl)
+  // const apiBaseUrl = useRuntimeConfig().public.apiBaseUrl
+  // const baseDomain = apiBaseUrl.replace(/\/api$/, '') // 去掉 '/api'
+  // const protocol = baseDomain.startsWith('https') ? 'wss:' : 'ws:'
 
-  const socket = io(wsUrl)
+  // const url = new URL(baseDomain)
+  // url.protocol = protocol
+
+  // const wsUrl = url.toString()
+  const apiBaseUrl = useRuntimeConfig().public.apiBaseUrl
+  const wsUrl = apiBaseUrl.replace(/\/api$/, '') // 去掉 '/api'
+  //console.log('WebSocket URL:', wsUrl)
+
+  const socket = io(wsUrl, {
+    path: '/socket.io/'
+    // transports: ['websocket', 'polling']
+  })
   const messageQueue = []
 
   socket.on('connect', () => {
-    console.log('連線到伺服器')
+    //console.log('連線到伺服器')
   })
 
   const shouldNotify = message => {
@@ -801,7 +1091,7 @@ const initWebSocket = () => {
   }
 
   socket.on('orderStatusUpdate', message => {
-    console.log('Received order status update:', message)
+    //console.log('Received order status update:', message)
     if (shouldNotify(message)) {
       messageQueue.push({
         type: 'orderStatusUpdate',
@@ -815,7 +1105,7 @@ const initWebSocket = () => {
   })
 
   socket.on('newOrder', message => {
-    console.log('Received new order message:', message)
+    //console.log('Received new order message:', message)
     if (shouldNotify(message)) {
       messageQueue.push({
         type: 'newOrder',
@@ -829,7 +1119,7 @@ const initWebSocket = () => {
   })
 
   socket.on('disconnect', reason => {
-    console.log('WebSocket disconnected:', reason)
+    //console.log('WebSocket disconnected:', reason)
   })
 
   socket.on('error', error => {
@@ -863,7 +1153,7 @@ const initWebSocket = () => {
 onMounted(() => {
   fetchOrders()
   startTimer()
-  initWebSocket() // 初始化 WebSocket
+  initWebSocket()
 })
 
 onUnmounted(() => {

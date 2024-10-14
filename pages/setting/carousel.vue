@@ -3,9 +3,9 @@
     <div>
       <div class="row title items-center">
         <h3>管理輪播圖片</h3>
-        <q-input v-model.number="autoplayInterval" label="自動播放間隔（毫秒）" type="number" outlined />
+        <q-input class="q-mx-sm" v-model.number="autoplayInterval" label="自動播放間隔（毫秒）" type="number" outlined />
 
-        <q-btn label="更新輪播秒數" color="secondary" class="q-mt-md" @click="updateCarouselSettings" />
+        <q-btn label="更新輪播秒數" color="yellow-7" text-color="black" class="q-mt-md" @click="updateCarouselSettings" />
       </div>
       <q-form @submit.prevent="uploadImage">
         <q-input v-model="linkTo" label="跳轉Link（不填即無Link）" outlined />
@@ -15,7 +15,7 @@
           <img v-if="imagePreview" :src="imagePreview" alt="圖片預覽" width="300" class="q-mt-md" />
         </div>
 
-        <q-btn type="submit" label="上傳圖片" color="primary" class="q-mt-md" />
+        <q-btn type="submit" label="上傳圖片" color="yellow-7" text-color="black" class="q-mt-md" />
       </q-form>
 
       <q-separator class="q-my-lg" />
@@ -24,7 +24,7 @@
       <div v-if="images.length > 0" class="row justify-between">
         <div v-for="image in images" :key="image.id" class="q-my-md">
           <img :src="image.image_url" :alt="'Image ' + image.id" width="300" />
-          <p>鏈接到: {{ image.link_to || '無' }}</p>
+          <p>連接到: {{ image.link_to || '無' }}</p>
           <q-btn color="negative" label="刪除" @click="deleteImage(image.id)" />
         </div>
       </div>
@@ -39,6 +39,51 @@
 import { ref, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import { useQuasar } from 'quasar'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜設定',
+  meta: [
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜設定'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/setting/carousel'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
 
 definePageMeta({
   layout: 'admin'

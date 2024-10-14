@@ -2,21 +2,18 @@
   <q-page>
     <div id="orders">
       <div>
-        <q-tabs v-model="activeTab" class="text-grey" shrink>
-          <q-tab name="incomplete" label="未完成訂單" />
-          <q-tab name="complete" label="已完成訂單" />
-        </q-tabs>
+        <div class="row items-center nomalTitle3 justify-start">
+          <p class="text-center">我的訂單</p>
+          <q-select v-model="activeTab" outlined :options="tabOptions" emit-value map-options />
+        </div>
 
         <q-tab-panels v-model="activeTab" animated>
-          <q-tab-panel name="incomplete">
-            <div cols="12">
-              <h3 class="text-center">未完成訂單</h3>
-            </div>
+          <q-tab-panel name="incomplete" class="no-x">
             <q-separator />
-            <div cols="12" class="q-gutter-sm">
-              <div class="row w-100">
-                <q-select class="col-2 filterBtn" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
-                <q-input v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
+            <div cols="12">
+              <div class="row w-100 myOrderFilters">
+                <q-select class="myOrderFilter" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
+                <q-input class="myOrderFilter" v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer q-mr-xs">
                       <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
@@ -25,12 +22,16 @@
                     </q-icon>
                   </template>
                 </q-input>
-                <q-input class="col-2 filterBtn" outlined v-model="filters.userName" label="用戶帳號" />
-                <q-input class="col-2 filterBtn" outlined v-model="filters.orderNumber" label="訂單編號" />
-                <q-btn class="q-ma-sm" label="搜尋" color="primary" @click="onSearch('incomplete')" />
-                <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
+                <!-- <q-input class="myOrderFilter" outlined v-model="filters.userName" label="用戶帳號" /> -->
+                <q-input class="myOrderFilter" outlined v-model="filters.orderNumber" label="訂單編號" />
+                <div class="myOrderFilterBtns">
+                  <q-btn class="q-mx-sm" label="搜尋" text-color="black" color="yellow-7" @click="onSearch('incomplete')" />
+                  <q-btn class="q-mx-sm" label="清空" text-color="black" color="yellow-7" @click="clearFilters" />
+                </div>
               </div>
-              <q-table :rows="orders" :columns="columns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+
+              <!-- 桌面版表格呈現 -->
+              <q-table v-if="!isMobile" :rows="orders" :columns="columns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
                 <template v-slot:body-cell-products="props">
                   <q-td :props="props">
                     <ul>
@@ -80,27 +81,73 @@
                       icon-first="skip_previous"
                       icon-last="skip_next"
                       icon-prev="fast_rewind"
-                      icon-next="fast_forward" />
+                      icon-next="fast_forward"
+                      color="grey-8"
+                      active-color="yellow-7" />
                   </div>
                 </template>
               </q-table>
 
-              <div class="reCatch">
-                <q-icon class="pointer" name="sync" size="sm" @click="fetchOrders('incomplete')" />
-                <span>於 {{ counter }}秒後重新抓取</span>
+              <!-- 手機版 grid 版本 -->
+              <div v-if="isMobile" class="grid-container">
+                <div class="grid-item" v-for="order in orders" :key="order.oid">
+                  <q-card>
+                    <q-card-section>
+                      <div class="title row items-center justify-between w-100">
+                        <div class="row w-100 justify-start" :class="statusColor(order.status)">{{ order.status }}</div>
+                        <div class="text-h6">訂單編號: {{ order.oid }}</div>
+                      </div>
+                      <div>訂購日期: {{ new Date(order.date).toLocaleDateString() }}</div>
+                      <div>送達日期: {{ new Date(order.delivery_date).toLocaleDateString() }}</div>
+                      <div>送達時段: {{ order.delivery_time }}</div>
+                      <div>付款方式: {{ order.payment_method }}</div>
+
+                      <q-separator />
+                      <div class="q-my-sm">
+                        訂單商品
+                        <li v-for="product in order.products" :key="product.id">{{ product.quantity }} 個 {{ product.product_name }} - {{ product.total_price }} 元</li>
+                      </div>
+                      <q-separator />
+
+                      <div v-if="order.comment">
+                        <div class="text-body1">訂單備註: {{ order.comment }}</div>
+                      </div>
+                      <div>總金額: {{ order.total_price }} 元</div>
+                    </q-card-section>
+                    <q-card-actions class="w-100 row justify-start">
+                      <q-btn outlined v-if="order.status === '未確認'" label="取消訂單" color="negative" @click="confirmCancelOrder(order)" />
+                      <q-btn outlined v-else-if="order.status === '商品已送出'" label="領收訂單" color="blue" @click="confirmReceiveOrder(order)" />
+                      <span v-else-if="order.status === '商家取消訂單' || order.status === '顧客取消訂單'" class="text-blue">已取消訂單</span>
+                      <span v-else-if="order.status === '已接收訂單'" class="text-blue">訂單成立</span>
+                      <span v-else-if="order.status === '已接收訂單' || order.status === '訂單完成'" class="text-blue">訂單完成</span>
+                    </q-card-actions>
+                  </q-card>
+                </div>
               </div>
+            </div>
+            <div class="row w-100 justify-center q-my-md lt-md">
+              <q-pagination
+                v-model="page"
+                :max="pageCount"
+                :max-pages="6"
+                direction-links
+                boundary-links
+                icon-first="skip_previous"
+                icon-last="skip_next"
+                icon-prev="fast_rewind"
+                icon-next="fast_forward"
+                color="grey-8"
+                active-color="yellow-7" />
             </div>
           </q-tab-panel>
 
-          <q-tab-panel name="complete">
-            <div cols="12">
-              <h3 class="text-center">已完成訂單</h3>
-            </div>
+          <q-tab-panel name="complete" class="no-x">
             <q-separator />
-            <div cols="12" class="q-gutter-sm">
-              <div class="row w-100">
-                <q-select class="col-2 filterBtn" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
-                <q-input v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
+
+            <div cols="12">
+              <div class="row w-100 myOrderFilters">
+                <q-select class="myOrderFilter" outlined v-model="filters.status" :options="statusOptions" label="訂單狀態" clearable map-options emit-value />
+                <q-input class="myOrderFilter" v-model="filters.deliveryDate" label="送達日期" outlined mask="####-##-##">
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer q-mr-xs">
                       <q-popup-proxy cover transition-show="scale" transition-hide="scale" v-model="showDatePicker">
@@ -109,12 +156,16 @@
                     </q-icon>
                   </template>
                 </q-input>
-                <q-input class="col-2 filterBtn" outlined v-model="filters.userName" label="用戶帳號" />
-                <q-input class="col-2 filterBtn" outlined v-model="filters.orderNumber" label="訂單編號" />
-                <q-btn class="q-ma-sm" label="搜尋" color="primary" @click="onSearch('complete')" />
-                <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
+                <!-- <q-input class="myOrderFilter" outlined v-model="filters.userName" label="用戶帳號" /> -->
+                <q-input class="myOrderFilter" outlined v-model="filters.orderNumber" label="訂單編號" />
+                <div class="myOrderFilterBtns">
+                  <q-btn class="q-mx-sm" label="搜尋" text-color="black" color="yellow-7" @click="onSearch('complete')" />
+                  <q-btn class="q-mx-sm" label="清空" text-color="black" color="yellow-7" @click="clearFilters" />
+                </div>
               </div>
-              <q-table :rows="orders" :columns="columns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+
+              <!-- 桌面版表格呈現 -->
+              <q-table v-if="!isMobile" :rows="orders" :columns="columns" row-key="oid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
                 <template v-slot:body-cell-products="props">
                   <q-td :props="props">
                     <ul>
@@ -164,15 +215,62 @@
                       icon-first="skip_previous"
                       icon-last="skip_next"
                       icon-prev="fast_rewind"
-                      icon-next="fast_forward" />
+                      icon-next="fast_forward"
+                      color="grey-8"
+                      active-color="yellow-7" />
                   </div>
                 </template>
               </q-table>
 
-              <div class="reCatch">
-                <q-icon class="pointer" name="sync" size="sm" @click="fetchOrders('complete')" />
-                <span>於 {{ counter }}秒後重新抓取</span>
+              <!-- 手機版 grid 版本 -->
+              <div v-if="isMobile" class="grid-container">
+                <div class="grid-item" v-for="order in orders" :key="order.oid">
+                  <q-card>
+                    <q-card-section>
+                      <div class="row w-100 justify-end" :class="statusColor(order.status)">{{ order.status }}</div>
+                      <div class="title row items-center justify-between w-100">
+                        <div class="text-h6">訂單編號: {{ order.oid }}</div>
+                      </div>
+                      <div>訂購日期: {{ new Date(order.date).toLocaleDateString() }}</div>
+                      <div>送達日期: {{ new Date(order.delivery_date).toLocaleDateString() }}</div>
+                      <div>送達時段: {{ order.delivery_time }}</div>
+                      <div>付款方式: {{ order.payment_method }}</div>
+
+                      <q-separator />
+                      <div class="q-my-sm">
+                        訂單商品
+                        <li v-for="product in order.products" :key="product.id">{{ product.quantity }} 個 {{ product.product_name }} - {{ product.total_price }} 元</li>
+                      </div>
+                      <q-separator />
+                      <div v-if="order.comment">
+                        <div class="text-body1">訂單備註: {{ order.comment }}</div>
+                      </div>
+                      <div>總金額: {{ order.total_price }} 元</div>
+                    </q-card-section>
+                    <q-card-actions>
+                      <q-btn outlined v-if="order.status === '未確認'" label="取消訂單" color="negative" @click="confirmCancelOrder(order)" />
+                      <q-btn outlined v-else-if="order.status === '商品已送出'" label="領收訂單" color="blue" @click="confirmReceiveOrder(order)" />
+                      <span v-else-if="order.status === '商家取消訂單' || order.status === '顧客取消訂單'" class="text-blue">已取消訂單</span>
+                      <span v-else-if="order.status === '已接收訂單'" class="text-blue">訂單成立</span>
+                      <span v-else-if="order.status === '已接收訂單' || order.status === '訂單完成'" class="text-blue">訂單完成</span>
+                    </q-card-actions>
+                  </q-card>
+                </div>
               </div>
+            </div>
+            <div class="row w-100 justify-center q-my-md lt-md">
+              <q-pagination
+                v-model="page"
+                :max="pageCount"
+                :max-pages="6"
+                direction-links
+                boundary-links
+                icon-first="skip_previous"
+                icon-last="skip_next"
+                icon-prev="fast_rewind"
+                icon-next="fast_forward"
+                color="grey-8"
+                active-color="yellow-7" />
             </div>
           </q-tab-panel>
         </q-tab-panels>
@@ -222,6 +320,58 @@ const counter = ref(60)
 const page = ref(1)
 const pageCount = ref(1)
 const activeTab = ref('incomplete')
+const isMobile = ref(false)
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜訂單',
+  meta: [
+    { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜訂單'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/orders'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
+
+const tabOptions = ref([
+  { label: '未完成訂單', value: 'incomplete' },
+  { label: '已完成訂單', value: 'complete' }
+])
 const filters = ref({
   status: '',
   deliveryDate: '',
@@ -263,7 +413,7 @@ const columns = [
   { name: 'date', align: 'center', label: '訂購日期', field: row => new Date(row.date).toLocaleDateString(), sortable: true },
   { name: 'deliveryDate', align: 'center', label: '送達日期', field: row => new Date(row.delivery_date).toLocaleDateString(), sortable: true },
   { name: 'deliveryTime', align: 'center', label: '送達時段', field: row => row.delivery_time, sortable: true },
-  { name: 'totalPrice', align: 'left', label: '金額', field: row => row.total_price, sortable: true },
+  { name: 'totalPrice', align: 'left', label: '金額', field: row => row.order_total, sortable: true },
   { name: 'paymentMethod', align: 'center', label: '付款方式', field: row => row.payment_method, sortable: true },
   { name: 'products', align: 'left', label: '商品', field: 'products', sortable: false },
   { name: 'status', align: 'center', label: '狀態', field: 'status', sortable: true },
@@ -310,12 +460,13 @@ const fetchOrders = async tab => {
         ...filters.value
       }
     })
-    const tempOrders = data.result.map(order => {
-      order.total_price = order.products.reduce((total, product) => total + parseFloat(product.total_price), 0)
-      return order
-    })
+    // const tempOrders = data.result.map(order => {
+    //   order.total_price = order.products.reduce((total, product) => total + parseFloat(product.total_price), 0)
+    //   return order
+    // })
 
-    orders.value = tempOrders
+    // orders.value = tempOrders
+    orders.value = data.result
     pageCount.value = data.totalPages
     counter.value = 60 // 重置
   } catch (error) {
@@ -417,13 +568,20 @@ const startTimer = () => {
   }, 1000)
 }
 
+const updateIsMobile = () => {
+  isMobile.value = window.innerWidth <= 1024
+}
+
 onMounted(() => {
   fetchOrders(activeTab.value)
   startTimer()
+  updateIsMobile()
+  window.addEventListener('resize', updateIsMobile)
 })
 
 onUnmounted(() => {
   clearInterval(intervalId)
+  window.removeEventListener('resize', updateIsMobile)
 })
 
 watch(activeTab, newTab => {

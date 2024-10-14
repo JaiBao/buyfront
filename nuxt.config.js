@@ -12,11 +12,12 @@ export default defineNuxtConfig({
     }
   },
   head: {
-    title: '北台灣訂購網',
+    title: '北台灣企業餐飲團訂網｜團體餐盒、點心外送',
     meta: [
       {
         name: 'description',
-        content: '北台灣訂購網'
+        content:
+          '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
       }
     ]
   },

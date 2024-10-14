@@ -1,35 +1,112 @@
-.profileCard {
-  padding: 2%;
-  margin: 2% 25%;
+.top {
+  display: flex;
+  flex-direction: column;
+  margin: 5% 0;
+  .basicSetting {
+    flex: 1;
+    padding: 0 2%;
+    .profileCard {
+      border: none;
+      box-shadow: none;
 
-  // .profileForm {
-  //   padding: 0 20%;
-  // }
+      .profileUpdateBtns {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        button {
+          width: 49%;
+        }
+      }
+    }
+  }
+
+  .storeSetting {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0 2%;
+
+    .inputs {
+      .q-field {
+        width: 100%;
+      }
+    }
+
+    .openingHours {
+      .q-field {
+        width: 33%;
+      }
+    }
+
+    .descriptionInput {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      .q-editor {
+        .q-editor__content {
+          flex: 1;
+          height: 100%;
+        }
+      }
+    }
+
+    .updateDescriptionBtn {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      button {
+        width: 50%;
+      }
+    }
+  }
+  @media (min-width: 1024px) {
+    flex-direction: row;
+    .storeSetting {
+      width: 50%;
+    }
+  }
 }
-h3 {
-  text-align: center;
-}
+
 .logoAreas {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   padding: 2%;
   .logoArea {
-    width: 48%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     .top {
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
+      flex-direction: column;
     }
     .nowImg {
-      width: 48%;
+      width: 100%;
+      flex: 1;
+      img {
+        object-fit: cover;
+      }
     }
+
     .toImg {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      .customUploadBtn {
+        width: 48%;
+      }
+      button {
+        width: 48%;
+      }
+    }
+  }
+  @media (min-width: 1024px) {
+    flex-direction: row;
+    .logoArea {
       width: 48%;
     }
   }

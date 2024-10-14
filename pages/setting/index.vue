@@ -2,71 +2,100 @@
   <q-page>
     <div id="profile">
       <div>
-        <div cols="12">
-          <h3 class="text-center">個人資料修改</h3>
-        </div>
-        <q-separator />
-        <q-card class="profileCard">
-          <q-form class="profileForm">
-            <q-input v-model="form.account" label="帳號" outlined readonly />
-            <q-input v-model="form.email" label="電子郵件" outlined />
-            <q-input v-model="form.name" label="姓名" outlined />
-            <q-input v-model="form.address" label="地址" outlined />
-            <q-input v-model="form.companyName" label="公司名稱" outlined />
-            <q-input v-model="form.taxId" label="統一編號" outlined />
-            <q-input v-model="form.phoneNumber" label="手機號碼" outlined />
-            <q-btn class="q-ma-sm" @click="updateProfile" label="更新資料" color="primary" :loading="loading" />
-            <q-btn class="q-ma-sm" @click="openChangePasswordDialog" label="更換密碼" color="primary" />
-          </q-form>
-        </q-card>
-        <div v-if="isAdmin">
-          <h3>商家圖片</h3>
-          <div class="logoAreas">
-            <div class="q-mt-md logoArea">
-              <div class="top">
-                <div class="nowImg">
-                  <p>現在Banner</p>
-                  <img v-if="storeImages.banner" :src="storeImages.banner" alt="Current Banner" class="q-mb-md" style="max-width: 100%" />
-                </div>
-                <div class="toImg">
-                  <input type="file" @change="previewBanner" />
-                  <img v-if="bannerPreview" :src="bannerPreview" alt="Banner Preview" class="q-mt-md" style="max-width: 100%" />
-                </div>
-              </div>
-              <q-btn @click="uploadBanner" label="上傳橫幅圖片" color="primary" :loading="loading" class="q-mt-md" />
+        <div class="top">
+          <div class="basicSetting">
+            <div class="row items-center nomalTitle3 justify-start">
+              <p class="text-center">基本資料設定</p>
             </div>
 
-            <div class="q-mt-md logoArea">
-              <div class="top">
-                <div class="nowImg">
-                  <p>現在圖片</p>
-                  <img v-if="storeImages.cover" :src="storeImages.cover" alt="Current Cover" class="q-mb-md" style="max-width: 100%" />
+            <q-card class="profileCard">
+              <q-form class="profileForm">
+                <q-input class="q-my-sm" v-model="form.account" label="帳號" outlined readonly />
+                <q-input class="q-my-sm" v-model="form.email" label="電子郵件" type="email" :rules="[validateEmail]" outlined hide-bottom-space />
+
+                <q-input class="q-my-sm" v-model="form.name" label="姓名" outlined />
+                <q-input class="q-my-sm" v-model="form.address" label="地址" outlined />
+                <q-input class="q-my-sm" v-model="form.companyName" label="公司名稱" outlined />
+                <q-input class="q-my-sm" v-model="form.taxId" label="統一編號" :rules="[validateTaiwanBusinessNumber]" outlined hide-bottom-space />
+                <q-input class="q-my-sm" readonly v-model="form.phoneNumber" label="手機號碼" outlined />
+                <div class="profileUpdateBtns">
+                  <q-btn class="q-my-sm" @click="updateProfile" label="更新資料" color="yellow-7" text-color="black" :loading="loading" :disable="!isFormChanged" />
+                  <q-btn class="q-my-sm" @click="openChangePasswordDialog" label="更換密碼" color="yellow-7" text-color="black" />
                 </div>
-                <div class="toImg">
-                  <input type="file" @change="previewCover" />
-                  <img v-if="coverPreview" :src="coverPreview" alt="Cover Preview" class="q-mt-md" style="max-width: 100%" />
-                </div>
-              </div>
-              <q-btn @click="uploadCover" label="上傳封面圖片" color="primary" :loading="loading" class="q-mt-md" />
+              </q-form>
+            </q-card>
+          </div>
+
+          <div v-if="isAdmin" class="storeSetting">
+            <div class="row items-center nomalTitle3 justify-start">
+              <p class="text-center">店家資訊設定</p>
+            </div>
+
+            <div class="inputs row w-100">
+              <q-select class="q-py-sm" v-model="form.categories" :options="categoryOptions" label="選擇類別" multiple outlined emit-value map-options />
+            </div>
+
+            <div class="openingHours row items-center">
+              <q-input class="q-pr-sm" v-model="form.openingStart" label="營業開始時間" outlined mask="##:##" />
+
+              <q-input class="q-pr-sm" v-model="form.openingEnd" label="營業結束時間" mask="##:##" outlined />
+              <q-input class="q-pr-sm" v-model="form.storePhone" label="店家電話" outlined />
+            </div>
+
+            <!-- 產品分類按钮 -->
+            <!-- <q-btn @click="openProductTabDialog" label="設定產品分類" color="primary" :loading="loading" class="q-mt-md" /> -->
+
+            <div class="descriptionInput">
+              <q-editor class="q-my-sm" v-model="form.description" label="描述" type="textarea" outlined style="flex: 1" />
+            </div>
+            <div class="updateDescriptionBtn">
+              <q-btn @click="updateDescription" label="更新資訊" color="yellow-7" text-color="black" :loading="loading" class="q-mt-md" :disable="!isStoreFormChanged" />
             </div>
           </div>
-          <div class="q-mt-md">
-            <h3>店家資訊</h3>
-            <div class="inputs row">
-              <q-select v-model="form.categories" :options="categoryOptions" label="選擇類別" multiple outlined emit-value map-options />
+        </div>
 
-              <div class="openingHours row items-center">
-                <q-input v-model="form.openingStart" label="營業開始時間" outlined mask="##:##" />
-                到
-                <q-input v-model="form.openingEnd" label="營業結束時間" mask="##:##" outlined />
+        <div v-if="isAdmin" class="imgSetting">
+          <div class="row items-center nomalTitle3 justify-start">
+            <p class="text-center">商家圖片</p>
+          </div>
+
+          <div class="logoAreas">
+            <!-- Banner 圖片區域 -->
+            <div class="q-mt-md logoArea">
+              <div class="top">
+                <div class="nowImg">
+                  <p>橫幅圖片</p>
+                  <!-- 顯示新上傳的圖片或現在圖片 -->
+                  <img :src="bannerPreview || storeImages.banner" alt="Banner Image" class="q-mb-md" style="max-width: 100%" />
+                </div>
               </div>
-
-              <!-- 產品分類按钮 -->
-              <q-btn @click="openProductTabDialog" label="設定產品分類" color="primary" :loading="loading" class="q-mt-md" />
+              <div class="toImg">
+                <label class="customUploadBtn">
+                  選擇橫幅圖片
+                  <input type="file" @change="previewCover" hidden />
+                </label>
+                <q-btn @click="uploadBanner" label="上傳橫幅圖片" color="yellow-7" text-color="black" :loading="loading" :disable="!bannerFile" />
+              </div>
             </div>
-            <q-editor v-model="form.description" label="描述" type="textarea" outlined />
 
-            <q-btn @click="updateDescription" label="更新資訊" color="primary" :loading="loading" class="q-mt-md" />
+            <!-- 封面圖片區域 -->
+            <div class="q-mt-md logoArea">
+              <div class="top">
+                <div class="nowImg">
+                  <p>封面圖片</p>
+                  <!-- 顯示新上傳的圖片或現在圖片 -->
+                  <img :src="coverPreview || storeImages.cover" alt="Cover Image" class="q-mb-md" style="max-width: 100%" />
+                </div>
+              </div>
+              <div class="toImg">
+                <label class="customUploadBtn">
+                  選擇封面圖片
+                  <input type="file" @change="previewCover" hidden />
+                </label>
+
+                <q-btn @click="uploadCover" label="上傳封面圖片" color="yellow-7" text-color="black" :loading="loading" :disable="!coverFile" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -79,8 +108,18 @@
           </q-card-section>
           <q-card-section>
             <q-input v-model="changePasswordForm.currentPassword" label="當前密碼" type="password" outlined />
-            <q-input v-model="changePasswordForm.newPassword" label="新密碼" type="password" outlined />
-            <q-input v-model="changePasswordForm.confirmNewPassword" label="確認新密碼" type="password" outlined />
+            <q-input
+              v-model="changePasswordForm.newPassword"
+              :rules="[val => validatePassword(val) || '密碼必須包含至少一個大寫字母、一個小寫字母和一個數字，且長度至少為 8 個字']"
+              label="新密碼"
+              type="password"
+              outlined />
+            <q-input
+              v-model="changePasswordForm.confirmNewPassword"
+              label="確認新密碼"
+              type="password"
+              :rules="[val => val === changePasswordForm.newPassword || '新密碼和確認新密碼不符合']"
+              outlined />
           </q-card-section>
           <q-card-actions align="right">
             <q-btn flat label="取消" color="negative" @click="showChangePasswordDialog = false" />
@@ -118,9 +157,57 @@
 import Swal from 'sweetalert2'
 import { useUserStore } from '/stores/user'
 import { storeToRefs } from 'pinia'
+import { useCategoryStore } from '/stores/category'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜設定',
+  meta: [
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜設定'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/setting'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
 const { $apiAuth } = useNuxtApp()
 const user = useUserStore()
 const loading = ref(false)
+const isFormChanged = ref(false)
+const isStoreFormChanged = ref(false)
 
 const { isAdmin } = storeToRefs(user)
 definePageMeta({
@@ -142,7 +229,8 @@ const form = ref({
   confirmPassword: '',
   openingStart: '',
   openingEnd: '',
-  productTabs: [] // 新增的产品分类 tabs 数组
+  storePhone: '',
+  productTabs: []
 })
 
 const storeImages = ref({
@@ -162,16 +250,19 @@ const changePasswordForm = ref({
   confirmNewPassword: ''
 })
 
-const categoryOptions = [
-  { label: '中式料理', value: '中式料理' },
-  { label: '韓式料理', value: '韓式料理' },
-  { label: '日式料理', value: '日式料理' },
-  { label: '手搖杯飲料', value: '手搖杯飲料' },
-  { label: '其他', value: '其他' }
-]
+const categoryStore = useCategoryStore()
+
+// 根據 categories 動態生成 categoryOptions
+const categoryOptions = computed(() =>
+  categoryStore.categories.map(category => ({
+    label: category,
+    value: category
+  }))
+)
 
 const showProductTabDialog = ref(false)
-
+const originalForm = reactive({})
+const originalStoreForm = reactive({})
 onMounted(async () => {
   try {
     const { data } = await $apiAuth.get('/users/me')
@@ -187,6 +278,7 @@ onMounted(async () => {
       categories: [],
       openingStart: '',
       openingEnd: '',
+      storePhone: '',
       productTabs: []
     }
 
@@ -199,6 +291,7 @@ onMounted(async () => {
         form.value.categories = []
         form.value.openingStart = ''
         form.value.openingEnd = ''
+        form.value.storePhone = ''
         form.value.productTabs = []
       } else {
         // 正常獲取商店資料
@@ -211,8 +304,66 @@ onMounted(async () => {
         const [start, end] = storeImagesRes.data.result.openingHours ? storeImagesRes.data.result.openingHours.split('-') : ['', '']
         form.value.openingStart = start
         form.value.openingEnd = end
+        form.value.storePhone = storeImagesRes.data.result.storePhone
       }
     }
+    // 初始化 originalForm
+    Object.assign(originalForm, {
+      account: form.value.account,
+      email: form.value.email,
+      name: form.value.name,
+      address: form.value.address,
+      companyName: form.value.companyName,
+      taxId: form.value.taxId,
+      phoneNumber: form.value.phoneNumber
+    })
+    Object.assign(
+      originalStoreForm,
+      JSON.parse(
+        JSON.stringify({
+          description: form.value.description,
+          categories: form.value.categories,
+          openingStart: form.value.openingStart,
+          openingEnd: form.value.openingEnd,
+          storePhone: form.value.storePhone,
+          productTabs: form.value.productTabs
+        })
+      )
+    )
+    // 監控表單變化
+
+    watch(
+      () => ({
+        account: form.value.account,
+        email: form.value.email,
+        name: form.value.name,
+        address: form.value.address,
+        companyName: form.value.companyName,
+        taxId: form.value.taxId,
+        phoneNumber: form.value.phoneNumber
+      }),
+      newForm => {
+        // 只比較基本資料部分
+        isFormChanged.value = JSON.stringify(newForm) !== JSON.stringify(originalForm)
+      },
+      { deep: true }
+    )
+
+    // 監控店家資訊變動
+    watch(
+      () => ({
+        description: form.value.description,
+        categories: form.value.categories,
+        openingStart: form.value.openingStart,
+        openingEnd: form.value.openingEnd,
+        storePhone: form.value.storePhone,
+        productTabs: form.value.productTabs
+      }),
+      newStoreForm => {
+        isStoreFormChanged.value = JSON.stringify(newStoreForm) !== JSON.stringify(originalStoreForm)
+      },
+      { deep: true }
+    )
   } catch (error) {
     Swal.fire({ icon: 'error', title: '失敗', text: '無法獲取商店信息' })
   }
@@ -246,15 +397,64 @@ const saveProductTabs = async () => {
   }
 }
 
+const validateEmail = email => {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+  return emailPattern.test(email) || '信箱格式錯誤'
+}
+
+const validateTaiwanBusinessNumber = number => {
+  const regex = /^[0-9]{8}$/
+  const logicMultipliers = [1, 2, 1, 2, 1, 2, 4, 1]
+  const sum = numbers => numbers.reduce((acc, curr) => Number(acc) + Number(curr), 0)
+
+  if (number.length !== 8 || !regex.test(number)) {
+    return false
+  }
+
+  let logicProductArr = []
+  let logicProduct = 0
+  if (number[6] == '7') {
+    for (let i = 0; i < number.length; i++) {
+      if (i != 6) {
+        logicProductArr.push(parseInt(number[i]) * logicMultipliers[i])
+      }
+    }
+  } else {
+    for (let i = 0; i < number.length; i++) {
+      logicProductArr.push(parseInt(number[i]) * logicMultipliers[i])
+    }
+  }
+
+  for (const item of logicProductArr) {
+    logicProduct += sum(item.toString().split(''))
+  }
+
+  if (number[6] === '7' && (logicProduct % 5 === 0 || (logicProduct + 1) % 5 === 0)) {
+    return true
+  } else if (logicProduct % 5 === 0) {
+    return true
+  }
+
+  return false
+}
+
 const updateProfile = async () => {
-  if (form.value.password && form.value.password !== form.value.confirmPassword) {
-    return Swal.fire({ icon: 'error', title: '失敗', text: '新密碼與確認新密碼不一致' })
+  // 驗證信箱格式
+  if (!validateEmail(form.value.email)) {
+    Swal.fire({ icon: 'error', title: '失敗', text: '信箱格式錯誤' })
+    return
+  }
+
+  if (form.value.taxId && !validateTaiwanBusinessNumber(form.value.taxId)) {
+    Swal.fire({ icon: 'error', title: '失敗', text: '統一編號格式錯誤' })
+    return
   }
 
   loading.value = true
   try {
     await $apiAuth.put('/users/me', form.value)
     Swal.fire({ icon: 'success', title: '成功', text: '資料已更新' })
+    Object.assign(originalForm, form)
   } catch (error) {
     Swal.fire({ icon: 'error', title: '失敗', text: error?.response?.data?.message || '發生錯誤' })
   } finally {
@@ -271,14 +471,27 @@ const openChangePasswordDialog = () => {
   showChangePasswordDialog.value = true
 }
 
+const validatePassword = password => {
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/
+  return passwordPattern.test(password)
+}
+
 const changePassword = async () => {
   const { currentPassword, newPassword, confirmNewPassword } = changePasswordForm.value
+
   if (!currentPassword || !newPassword || !confirmNewPassword) {
     Swal.fire({ icon: 'error', title: '失敗', text: '所有欄位都不能為空' })
     return
   }
+
   if (newPassword !== confirmNewPassword) {
     Swal.fire({ icon: 'error', title: '失敗', text: '新密碼和確認新密碼不匹配' })
+    return
+  }
+
+  // 驗證密碼格式
+  if (!validatePassword(newPassword)) {
+    Swal.fire({ icon: 'error', title: '失敗', text: '密碼必須包含至少一個大寫字母、一個小寫字母和一個數字，且長度至少為 8 個字' })
     return
   }
 
@@ -375,7 +588,7 @@ const updateDescription = async () => {
   try {
     const categoriesString = form.value.categories.join(',')
 
-    // console.log({
+    //console.log({
     //   description: form.value.description,
     //   categories: categoriesString,
     //   openingHours,
@@ -385,7 +598,8 @@ const updateDescription = async () => {
     await $apiAuth.post('/users/description', {
       description: form.value.description,
       categories: categoriesString,
-      openingHours
+      openingHours,
+      storePhone: form.value.storePhone
     })
     Swal.fire({ icon: 'success', title: '成功', text: '店家資料已更新' })
   } catch (error) {

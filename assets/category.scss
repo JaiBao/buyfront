@@ -9,9 +9,19 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 24%;
+    width: 100%;
     margin: 0.5%;
     min-height: 400px;
+  }
+  @media (min-width: 768px) {
+    .productCard {
+      width: 48%;
+    }
+  }
+  @media (min-width: 1024px) {
+    .productCard {
+      width: 24%;
+    }
   }
 }
 .search-bar {

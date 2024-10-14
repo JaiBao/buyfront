@@ -64,7 +64,7 @@ const props = defineProps({
   }
 })
 
-console.log(props.product)
+//console.log(props.product)
 
 const user = useUserStore()
 const { editCart } = user

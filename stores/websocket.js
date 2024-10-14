@@ -12,18 +12,18 @@
 //   const apiBaseUrl = useRuntimeConfig().public.apiBaseUrl
 //   const protocol = apiBaseUrl.startsWith('https') ? 'wss' : 'ws'
 //   const wsUrl = apiBaseUrl.replace(/^http/, protocol)
-//   console.log('WebSocket URL:', wsUrl)
+//   //console.log('WebSocket URL:', wsUrl)
 
 //   const socket = io(wsUrl)
 //   const messageQueue = []
 
 //   socket.on('connect', () => {
-//     console.log('連線到伺服器')
+//     //console.log('連線到伺服器')
 //   })
 
 //   if (isSuperAdmin.value) {
 //     socket.on('orderStatusUpdate', message => {
-//       console.log('Received order status update:', message)
+//       //console.log('Received order status update:', message)
 //       messageQueue.push({
 //         type: 'orderStatusUpdate',
 //         time: message.time,
@@ -37,7 +37,7 @@
 
 //   if (isAdmin.value || isSuperAdmin.value) {
 //     socket.on('newOrder', message => {
-//       console.log('Received new order message:', message)
+//       //console.log('Received new order message:', message)
 //       messageQueue.push({
 //         type: 'newOrder',
 //         time: message.time,
@@ -50,7 +50,7 @@
 //   }
 
 //   socket.on('disconnect', reason => {
-//     console.log('WebSocket disconnected:', reason)
+//     //console.log('WebSocket disconnected:', reason)
 //   })
 
 //   socket.on('error', error => {

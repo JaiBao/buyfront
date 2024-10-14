@@ -1,7 +1,16 @@
 .registerCard {
-  margin: 5% 30%;
   padding: 2%;
-  .registerCardContent {
-    padding: 10%;
+  margin: 2%;
+  @media (min-width: 768px) {
+    margin: 5% 30%;
+    .registerCardContent {
+      padding: 10%;
+    }
+  }
+}
+
+.registerCardContent {
+  .q-input {
+    margin: 2% 0;
   }
 }

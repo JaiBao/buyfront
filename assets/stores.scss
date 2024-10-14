@@ -14,7 +14,18 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 24%;
+    width: 100%;
     margin: 0.5%;
+  }
+  @media (min-width: 768px) {
+    flex-direction: row;
+    .storeCard {
+      width: 48%;
+    }
+  }
+  @media (min-width: 1024px) {
+    .storeCard {
+      width: 24%;
+    }
   }
 }

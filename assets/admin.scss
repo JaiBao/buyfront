@@ -1,0 +1,106 @@
+.greyLine {
+  border-radius: 999px;
+  background: linear-gradient(90deg, #444 0%, rgba(255, 244, 244, 0) 100%);
+  align-self: start;
+  display: flex;
+  margin: 9px 0;
+  width: 86px;
+  height: 1px;
+  flex-direction: column;
+}
+
+.footerToolbar {
+  padding: 2%;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  img {
+    object-fit: contain;
+    margin: 2% 0;
+  }
+  p {
+    font-size: 12px;
+    margin: 0;
+  }
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 5%;
+    p {
+      font-size: 14px;
+    }
+  }
+}
+
+.adminLogo {
+  width: 80%;
+  padding: 10% 10% 0 10%;
+}
+
+.blackLine {
+  width: 100%;
+  height: 1px;
+  margin: 12px 0;
+  background: linear-gradient(90deg, rgba(217, 217, 217, 0) 0%, #2b2b2b 57.29%, rgba(217, 217, 217, 0) 100%);
+}
+
+.items_icon {
+  padding: 0;
+  min-width: 0;
+}
+
+.my-menu-link {
+  color: white;
+  background: white;
+  margin: 0 10%;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 10px;
+}
+
+.my-menu {
+  margin: 0 10%;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 10px;
+}
+
+.storeName {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin: 3% 10%;
+  border-bottom: 1px solid black;
+  .title {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    margin-right: 5px;
+    span {
+      color: #2b2b2b;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 160%; /* 19.2px */
+    }
+  }
+  .name {
+    padding: 10% 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    span {
+      color: #2b2b2b;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 160%; /* 32px */
+    }
+  }
+}

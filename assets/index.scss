@@ -9,14 +9,24 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 24%;
+    width: 100%;
     margin: 0.5%;
     min-height: 400px;
+  }
+  @media (min-width: 768px) {
+    .productCard {
+      width: 49%;
+    }
+  }
+  @media (min-width: 1024px) {
+    .productCard {
+      width: 24%;
+    }
   }
 }
 .search-bar {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   width: 100%;
   align-items: center;
   justify-content: space-around;
@@ -29,6 +39,8 @@
     flex-direction: row;
     flex-wrap: wrap;
     min-width: 25%;
+    padding: 2%;
+    width: 100%;
     .selects {
       display: flex;
       flex-direction: row;
@@ -36,7 +48,7 @@
       width: 100%;
       justify-content: space-around;
       .searchSelect {
-        width: 150px;
+        width: 44%;
         background: rgba(255, 255, 255, 0.68);
         border-radius: 10px;
         margin: 5px;
@@ -49,17 +61,47 @@
       width: 100%;
       justify-content: space-around;
       margin-top: 2px;
+      padding: 0 2%;
       button {
-        width: 45%;
+        width: 100%;
         margin: 5px;
       }
     }
   }
 
   h3 {
+    font-size: 28px;
+    margin: 0;
     color: white;
   }
+  @media (min-width: 768px) {
+    flex-direction: row;
+
+    .searchs {
+      width: 60%;
+      .selects {
+        .searchSelect {
+          width: 44%;
+        }
+      }
+      .btns {
+        padding: 0 1%;
+      }
+    }
+  }
+  @media (min-width: 1024px) {
+    flex-direction: row;
+
+    .searchs {
+      .selects {
+        .searchSelect {
+          width: 22%;
+        }
+      }
+    }
+  }
 }
+
 .stores {
   margin: 4% 0;
 }
@@ -76,8 +118,18 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 24%;
+    width: 100%;
     margin: 0.5%;
+  }
+  @media (min-width: 768px) {
+    .storeCard {
+      width: 49%;
+    }
+  }
+  @media (min-width: 1024px) {
+    .storeCard {
+      width: 24%;
+    }
   }
 }
 
@@ -101,15 +153,17 @@
   }
 
   .supply {
-    width: 55%;
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    flex-wrap: wrap;
     .supplyCard {
-      width: 48%;
+      width: 100%;
       box-shadow: none;
       display: flex;
       flex-direction: column;
+
       img {
         object-fit: contain;
         border-radius: 10px;
@@ -138,6 +192,13 @@
           line-height: 160%; /* 22.4px */
           letter-spacing: 0.28px;
         }
+      }
+    }
+  }
+  @media (min-width: 768px) {
+    .supply {
+      .supplyCard {
+        width: 48%;
       }
     }
   }

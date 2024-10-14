@@ -10,19 +10,19 @@
     top: 85%;
   }
   @media (min-width: 768px) {
-    top: 93%;
+    top: 90%;
   }
 }
 .carousel__item {
   position: relative;
-  min-height: 200px;
+  // min-height: 200px;
   width: 100%;
 
   font-size: 20px;
   border-radius: 8px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  // display: flex;
+  // justify-content: flex-start;
+  // align-items: flex-start;
 
   img {
     width: 100%;

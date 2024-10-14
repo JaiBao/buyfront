@@ -2,7 +2,7 @@
 <template>
   <q-page>
     <!-- banner -->
-    <section class="indexSection1">
+    <section class="indexSection1 gt-xs">
       <bannerCarousel />
       <!-- <bannerAppCarousel class="lt-md" /> -->
     </section>
@@ -10,7 +10,7 @@
     <!-- 推薦店家 -->
     <div>
       <div class="stores">
-        <div class="search-bar">
+        <div class="search-bar" id="toHere">
           <h3>今天想吃什麼？</h3>
           <div class="searchs">
             <div class="selects">
@@ -28,8 +28,8 @@
               <q-input class="searchSelect" v-model="storeName" label="店家名稱" />
             </div>
             <div class="btns">
-              <q-btn color="red" @click="clearStoreSearch">清空</q-btn>
-              <q-btn color="yellow-5" @click="searchStores">搜尋</q-btn>
+              <!-- <q-btn color="red" @click="clearStoreSearch">清空</q-btn> -->
+              <q-btn color="yellow-5" @click="searchStores">開始配對</q-btn>
             </div>
           </div>
         </div>
@@ -50,21 +50,20 @@
       </div>
       <!-- <q-separator /> -->
       <div class="supplys">
-        <div class="category">
+        <!-- <div class="category">
           <img src="/index/categoryDrink.png" alt="手搖飲杯" class="pointer" @click="viewMore('手搖杯飲料')" />
           <img src="/index/categoryJapen.png" alt="日式料理" class="pointer" @click="viewMore('日式料理')" />
           <img src="/index/categoryChinese.png" alt="中式料理" class="pointer" @click="viewMore('中式料理')" />
           <img src="/index/categoryKorean.png" alt="韓式料理" class="pointer" @click="viewMore('韓式料理')" />
-        </div>
+        </div> -->
         <div class="supply">
           <q-card class="supplyCard">
             <div class="nomalTitle2"><p>嚴選新鮮食材供應商</p></div>
             <img src="/index/supply1.png" alt="供應商" />
             <div class="tags">
-              <div class="tag">東昇米糧食品有限公司</div>
-              <div class="tag">同正食品有限公司</div>
+              <a class="tag" href="https://ds5168.com.tw/">東昇米糧食品有限公司</a>
+              <a class="tag" href="http://www.tjfood.tw/" target="_blank">同正食品有限公司</a>
               <div class="tag">沛洋國際股份有限公司</div>
-              <div class="tag">瑞福食品股份有限公司</div>
               <div class="tag">菁源生技股份有限公司</div>
             </div>
           </q-card>
@@ -72,10 +71,10 @@
             <div class="nomalTitle2"><p>餐盒包裝製造商</p></div>
             <img src="/index/supply2.png" alt="製造商" />
             <div class="tags">
-              <div class="tag">萬鴻萬鴻貿易有限公司</div>
-              <div class="tag">禾啓股份有限公司</div>
-              <div class="tag">三麟彩色印刷股份有限公司</div>
-              <div class="tag">雄豪野科技印刷有限公司</div>
+              <a class="tag" href="http://www.mrbaking.com.tw/" target="_blank">萬鴻貿易有限公司</a>
+              <a class="tag" href="https://www.hjhj.com.tw/" target="_blank">禾啟股份有限公司</a>
+              <a class="tag" href="https://sanlin.waca.ec/" target="_blank">三麟彩色印刷股份有限公司</a>
+              <a class="tag" href="https://hemusih.com.tw/showme-hoya-design-print/" target="_blank">雄豪野科技印刷有限公司</a>
             </div>
           </q-card>
         </div>
@@ -108,7 +107,7 @@
       <!-- <q-separator /> -->
 
       <!-- 中式料理 -->
-      <div class="nomalTitle">
+      <!-- <div class="nomalTitle">
         <p>中式料理</p>
         <q-btn flat color="black" @click="viewMore('中式料理')" class="seeMore">查看更多</q-btn>
       </div>
@@ -119,10 +118,10 @@
       </div>
       <div v-else class="row w-100 justify-center">
         <img src="/index/comingsoon.png" alt="comingsoon" />
-      </div>
+      </div> -->
 
       <!-- 韓式料理 -->
-      <div class="nomalTitle">
+      <!-- <div class="nomalTitle">
         <p>韓式料理</p>
         <q-btn flat color="black" @click="viewMore('韓式料理')" class="seeMore">查看更多</q-btn>
       </div>
@@ -133,10 +132,10 @@
       </div>
       <div v-else class="row w-100 justify-center">
         <img src="/index/comingsoon.png" alt="comingsoon" />
-      </div>
+      </div> -->
 
       <!-- 日式料理 -->
-      <div class="nomalTitle">
+      <!-- <div class="nomalTitle">
         <p>日式料理</p>
         <q-btn flat color="black" @click="viewMore('日式料理')" class="seeMore">查看更多</q-btn>
       </div>
@@ -147,10 +146,10 @@
       </div>
       <div v-else class="row w-100 justify-center">
         <img src="/index/comingsoon.png" alt="comingsoon" />
-      </div>
+      </div> -->
 
       <!-- 手搖杯飲料 -->
-      <div class="nomalTitle">
+      <!-- <div class="nomalTitle">
         <p>手搖杯飲料</p>
         <q-btn flat color="black" @click="viewMore('手搖杯飲料')" class="seeMore">查看更多</q-btn>
       </div>
@@ -161,7 +160,7 @@
       </div>
       <div v-else class="row w-100 justify-center">
         <img src="/index/comingsoon.png" alt="comingsoon" />
-      </div>
+      </div> -->
     </div>
   </q-page>
 </template>
@@ -175,6 +174,53 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useCategoryStore } from '/stores/category'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜團體餐盒、點心外送',
+  meta: [
+    { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜企業團購網'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
 
 const isMobile = ref(false)
 const products = ref([])
@@ -187,7 +233,9 @@ const storeCategory = ref('')
 const storeName = ref('')
 const selectedAddress = ref(null) // 縣市
 const selectedCity = ref(null) // 區域
-const categories = ['中式料理', '韓式料理', '日式料理', '手搖杯飲料', '其他']
+
+const categoryStore = useCategoryStore()
+const categories = categoryStore.categories
 // 用於存儲不同分類的產品
 const productsChinese = ref([])
 const productsKorean = ref([])
@@ -290,6 +338,12 @@ const searchStores = async () => {
 
     const { data } = await $apiAuth.get(query)
     stores.value = data.result
+
+    // 搜尋完成後滾動到 toHere
+    const element = document.getElementById('toHere')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' }) // 平滑滾動
+    }
   } catch (error) {
     Swal.fire({
       icon: 'error',

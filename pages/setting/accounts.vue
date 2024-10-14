@@ -1,25 +1,33 @@
 <!-- setting/accounts.vue -->
 <template>
   <q-page>
-    <div class="accountsTable">
-      <div>
-        <h3 class="text-center">帳號管理</h3>
+    <div class="accounts">
+      <div class="row items-center nomalTitle3 justify-start">
+        <p class="text-center">帳號管理</p>
       </div>
-      <q-separator />
-      <div class="row w-100">
-        <q-input class="col-2" v-model="search.account" label="搜尋帳號" outlined />
-        <q-input class="col-2" v-model="search.name" label="搜尋名稱" outlined />
-        <q-input class="col-2" v-model="search.phoneNumber" label="搜尋手機" outlined />
-        <q-select class="col-2" v-model="search.role" :options="roleOptions" label="角色" outlined emit-value map-options />
-        <q-btn class="q-ma-sm" color="primary" @click="onSearch">搜尋</q-btn>
-        <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
+
+      <div class="search">
+        <q-input :class="[search.account ? 'haveText' : 'noText']" class="q-mr-sm searchInput" v-model="search.account" label="搜尋帳號" outlined />
+        <q-input :class="[search.name ? 'haveText' : 'noText']" class="q-mr-sm searchInput" v-model="search.name" label="搜尋名稱" outlined />
+        <q-input :class="[search.phoneNumber ? 'haveText' : 'noText']" class="q-mr-sm searchInput" v-model="search.phoneNumber" label="搜尋手機" outlined />
+        <q-select
+          :class="[search.role ? 'haveText' : 'noText']"
+          class="q-mr-sm searchInput"
+          v-model="search.role"
+          :options="roleOptions"
+          label="角色"
+          outlined
+          emit-value
+          map-options />
+        <q-btn class="q-ma-sm searchBtn" @click="onSearch" color="yellow-7" text-color="black">搜尋</q-btn>
+        <q-btn class="q-ma-sm searchBtn" label="清空" @click="clearFilters" color="yellow-7" text-color="black" />
       </div>
       <div>
-        <q-table :rows="users" :columns="columns" row-key="uid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+        <q-table :rows="users" :columns="columns" row-key="uid" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination" class="accountsTable">
           <template v-slot:body-cell-actions="props">
             <q-td :props="props">
               <q-btn flat @click="openEditDialog(props.row)">
-                <q-icon name="edit" />
+                <q-icon name="edit" color="primary" />
               </q-btn>
               <q-btn flat @click="openResetPasswordDialog(props.row)">
                 <q-icon color="green" name="lock_reset" />
@@ -43,7 +51,9 @@
                 icon-first="skip_previous"
                 icon-last="skip_next"
                 icon-prev="fast_rewind"
-                icon-next="fast_forward" />
+                icon-next="fast_forward"
+                color="grey-8"
+                active-color="yellow-7" />
             </div>
           </template>
         </q-table>
@@ -96,6 +106,51 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import Swal from 'sweetalert2'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜設定',
+  meta: [
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜設定'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/setting/accounts'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
 const { $apiAuth } = useNuxtApp()
 definePageMeta({
   layout: 'admin'

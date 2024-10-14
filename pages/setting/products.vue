@@ -2,6 +2,52 @@
 import Swal from 'sweetalert2'
 import { useUserStore } from '/stores/user'
 import { storeToRefs } from 'pinia'
+import { useCategoryStore } from '/stores/category'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜產品設定',
+  meta: [
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜產品設定'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/setting/products'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
 const { $api, $apiAuth } = useNuxtApp()
 definePageMeta({
   layout: 'admin'
@@ -10,7 +56,8 @@ definePageMeta({
 const showProductTabDialog = ref(false)
 const loading = ref(false)
 
-const categories = ['中式料理', '韓式料理', '日式料理', '手搖杯飲料', '其他']
+const categoryStore = useCategoryStore()
+const categories = categoryStore.categories
 const sellOptions = [
   { label: '全部', value: undefined },
   { label: '上架', value: 1 },
@@ -25,6 +72,110 @@ const products = ref([])
 const imagePreview = ref(null)
 const userStore = useUserStore()
 const { isSuperAdmin, isAdmin } = storeToRefs(userStore)
+
+const showOptionDialog = ref(false)
+const optionForm = reactive({
+  id: '', // 產品ID
+  options: [
+    {
+      name: '', // 選項種類名稱
+      values: [{ name: '', price: 0.0 }] // 選項及價錢
+    }
+  ]
+})
+
+// 打開增加選項對話框
+const openOptionDialog = productId => {
+  const product = products.value.find(p => p.id === productId)
+
+  // 確認產品是否存在，並且有選項數據
+  if (product && product.options && product.options.length > 0) {
+    const options = []
+    const groupedOptions = {}
+
+    // 將同一種類的選項歸類在一起
+    product.options.forEach(option => {
+      if (!groupedOptions[option.name]) {
+        groupedOptions[option.name] = {
+          name: option.name,
+          values: []
+        }
+      }
+      groupedOptions[option.name].values.push({
+        name: option.option_name,
+        price: parseFloat(option.price)
+      })
+    })
+
+    // 將分組後的選項種類和對應的選項填充到表單
+    Object.keys(groupedOptions).forEach(key => {
+      options.push(groupedOptions[key])
+    })
+
+    optionForm.options = options
+  } else {
+    // 如果沒有選項，初始化為空的表單
+    optionForm.options = [{ name: '', values: [{ name: '', price: 0.0 }] }]
+  }
+
+  optionForm.id = productId
+  showOptionDialog.value = true
+}
+
+// 新增選項種類
+const addOptionCategory = () => {
+  optionForm.options.push({ name: '', values: [{ name: '', price: 0.0 }] })
+}
+
+// 移除選項種類
+const removeOptionCategory = index => {
+  optionForm.options.splice(index, 1)
+}
+
+// 新增選項
+const addOptionValue = index => {
+  optionForm.options[index].values.push({ name: '', price: 0.0 })
+}
+
+// 移除單個選項
+const removeOptionValue = (index, valueIndex) => {
+  optionForm.options[index].values.splice(valueIndex, 1)
+}
+
+// 保存選項
+const saveProductOptions = async () => {
+  // 檢查選項表單，過濾掉空的選項種類或空的選項
+  const validOptions = optionForm.options
+    .filter(option => {
+      // 選項種類名稱非空，並且至少有一個有效的選項值
+      return option.name && option.values.some(value => value.name && value.price !== null && value.price !== undefined)
+    })
+    .map(option => {
+      // 過濾掉空的選項值
+      return {
+        name: option.name,
+        values: option.values.filter(value => value.name && value.price !== null && value.price !== undefined)
+      }
+    })
+
+  // 如果沒有有效的選項，則不進行提交
+  if (validOptions.length === 0) {
+    Swal.fire({ icon: 'error', title: '失敗', text: '請填寫至少一個有效的選項種類和選項' })
+    return
+  }
+
+  try {
+    await $apiAuth.post('/products/addOptions', {
+      productId: optionForm.id,
+      options: validOptions
+    })
+    Swal.fire({ icon: 'success', title: '成功', text: '選項已成功添加' })
+    showOptionDialog.value = false
+    fetchProducts() // 刷新產品數據
+  } catch (error) {
+    Swal.fire({ icon: 'error', title: '失敗', text: error?.response?.data?.message || '添加選項時出現錯誤' })
+  }
+}
 
 const form = reactive({
   id: '',
@@ -70,11 +221,9 @@ const addProductTab = () => {
   form.productTabs.push('')
 }
 const clearFilters = () => {
-  search.value = {
-    name: '',
-    sell: undefined,
-    manufacturerName: ''
-  }
+  search.name = ''
+  search.sell = undefined
+  search.manufacturerName = ''
   fetchProducts()
 }
 
@@ -129,7 +278,7 @@ const fetchProducts = async () => {
 const fetchProductTabs = async () => {
   try {
     const { data } = await $apiAuth.get('/users/store-images')
-    console.log('API Response:', data)
+    //console.log('API Response:', data)
     if (data.success) {
       if (typeof data.result.productTabs === 'string') {
         form.productTabs = data.result.productTabs.split(',')
@@ -255,23 +404,39 @@ watch(pagination, fetchProducts, { deep: true })
 <template>
   <q-page>
     <div class="adminProducts">
-      <h3 class="text-center">商品管理</h3>
-      <q-separator />
-      <div class="row w-100">
-        <q-input class="col-2" v-model="search.name" label="搜尋名稱" outlined />
-        <q-select class="col-2" v-model="search.sell" :options="sellOptions" label="狀態" outlined map-options emit-value />
-        <q-input v-if="isSuperAdmin" v-model="search.manufacturerName" label="搜尋廠商名稱" outlined />
-        <q-btn class="q-ma-sm" color="primary" @click="fetchProducts">搜尋</q-btn>
-        <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
-        <q-btn class="q-ma-sm" color="primary" @click="openDialog(-1)">新增商品</q-btn>
+      <div class="row items-center nomalTitle3 justify-start">
+        <p class="text-center">商品管理</p>
+      </div>
+
+      <div class="search">
+        <q-input label-color="dark" class="searchInput q-mr-sm" :class="[search.name ? 'haveText' : 'noText']" v-model="search.name" label="產品名稱" outlined />
+        <q-select
+          :class="[search.sell ? 'haveText' : 'noText']"
+          class="searchInput q-mr-sm"
+          v-model="search.sell"
+          :options="sellOptions"
+          label="狀態"
+          outlined
+          map-options
+          emit-value />
+        <q-input
+          :class="[search.manufacturerName ? 'haveText' : 'noText']"
+          class="searchInput q-mr-sm"
+          v-if="isSuperAdmin"
+          v-model="search.manufacturerName"
+          label="廠商名稱"
+          outlined />
+        <q-btn class="q-mx-sm searchBtn" color="yellow-7" text-color="black" @click="fetchProducts">搜尋</q-btn>
+        <q-btn class="q-mx-sm searchBtn" label="清空" color="yellow-7" text-color="black" @click="clearFilters" />
+        <q-btn class="q-mx-sm searchBtn" color="yellow-7" text-color="black" @click="openDialog(-1)">新增商品</q-btn>
         <!-- 產品分類按钮 -->
-        <q-btn @click="openProductTabDialog" label="設定產品分類" color="primary" :loading="loading" class="q-ma-sm" />
+        <q-btn @click="openProductTabDialog" label="設定產品分類" color="yellow-7" text-color="black" :loading="loading" class="q-mx-sm searchBtn" />
       </div>
       <div>
-        <q-table :rows="products" :columns="computedColumns" row-key="id" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+        <q-table :rows="products" :columns="computedColumns" row-key="id" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination" class="productTable">
           <template v-slot:body-cell-image="props">
             <q-td :props="props">
-              <img :src="props.row.image" width="50" height="50" />
+              <img :src="props.row.image" width="128" height="90" />
             </q-td>
           </template>
           <template v-slot:body-cell-price="props">
@@ -289,7 +454,8 @@ watch(pagination, fetchProducts, { deep: true })
           </template>
           <template v-slot:body-cell-actions="props">
             <q-td :props="props">
-              <q-btn flat icon="edit" @click="openDialog(props.row.id)" />
+              <q-btn color="primary" flat icon="edit" @click="openDialog(props.row.id)">編輯</q-btn>
+              <q-btn color="secondary" flat icon="add" @click="openOptionDialog(props.row.id)">選項設定</q-btn>
             </q-td>
           </template>
           <template v-slot:bottom>
@@ -304,7 +470,9 @@ watch(pagination, fetchProducts, { deep: true })
                 icon-first="skip_previous"
                 icon-last="skip_next"
                 icon-prev="fast_rewind"
-                icon-next="fast_forward" />
+                icon-next="fast_forward"
+                color="grey-8"
+                active-color="yellow-7" />
             </div>
           </template>
         </q-table>
@@ -321,7 +489,7 @@ watch(pagination, fetchProducts, { deep: true })
               <q-editor filled v-model="form.description" type="textarea" label="說明" :rules="[rules.required]" />
               <q-select filled v-model="form.category" :options="categories" label="分類" :rules="[rules.required]" />
               <q-select filled v-model="form.tab" :options="form.productTabs" label="產品分類" :rules="[rules.required]" />
-              <!-- 新增的 tab 选择 -->
+              <!-- 新增的 tab  -->
               <q-checkbox v-model="form.sell" label="上架" />
               <div>
                 <input type="file" @change="handleFileUpload" ref="fileInput" />
@@ -356,6 +524,59 @@ watch(pagination, fetchProducts, { deep: true })
           </q-card-actions>
         </q-card>
       </q-dialog>
+
+      <q-dialog v-model="showOptionDialog">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">增加選項</div>
+          </q-card-section>
+
+          <q-card-section>
+            <!-- 選項種類 -->
+            <div v-for="(option, index) in optionForm.options" :key="index" class="q-mb-sm">
+              <q-card bordered class="q-pa-sm">
+                <q-card-section>
+                  <q-input v-model="option.name" label="選項種類名稱" />
+
+                  <!-- 移除選項種類按鈕 -->
+                  <q-btn flat icon="delete" color="negative" @click="removeOptionCategory(index)" label="刪除選項種類" />
+                </q-card-section>
+
+                <q-separator />
+
+                <!-- 選項 -->
+                <q-card-section>
+                  <div v-for="(value, valueIndex) in option.values" :key="valueIndex" class="q-mb-sm">
+                    <q-card bordered class="q-pa-sm">
+                      <q-card-section>
+                        <q-input v-model="value.name" label="選項名稱" />
+                        <!-- <q-input v-model="value.price" type="number" label="加購價格" /> -->
+
+                        <!-- 移除單個選項按鈕 -->
+                        <q-btn flat icon="delete" color="negative" @click="removeOptionValue(index, valueIndex)" label="刪除選項" />
+                      </q-card-section>
+                    </q-card>
+                  </div>
+
+                  <!-- 新增選項按鈕 -->
+                  <q-btn flat icon="add" @click="addOptionValue(index)" label="新增選項" />
+                </q-card-section>
+              </q-card>
+            </div>
+
+            <!-- 新增選項種類按鈕 -->
+            <q-btn flat icon="add" @click="addOptionCategory" label="新增選項種類" />
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="取消" color="negative" @click="showOptionDialog = false" />
+            <q-btn flat label="確認" color="primary" @click="saveProductOptions" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </q-page>
 </template>
+<style lang="scss" scoped>
+@import 'assets/setting/products.scss';
+</style>

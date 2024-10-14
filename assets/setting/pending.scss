@@ -1,6 +1,31 @@
-.accountsTable {
+.peddings {
   margin: 5%;
   //   padding: 2%;
+  .search {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    .searchInput {
+      width: 16%;
+      min-width: 135px;
+    }
+
+    .searchBtn {
+      width: 15%;
+      padding: 9px 16px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .search {
+      flex-wrap: nowrap;
+    }
+  }
+}
+.peddingsTable {
+  box-shadow: none;
+  border: none !important;
 }
 
 .text-center {

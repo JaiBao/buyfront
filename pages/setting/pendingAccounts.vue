@@ -1,20 +1,20 @@
 <!-- pendingAccounts.vue -->
 <template>
   <q-page>
-    <div class="accountsTable">
-      <div>
-        <h3 class="text-center">待審核廠商</h3>
+    <div class="peddings">
+      <div class="row items-center nomalTitle3 justify-start">
+        <p class="text-center">待審核廠商</p>
       </div>
-      <q-separator />
-      <div class="row w-100">
-        <q-input class="col-2" v-model="search.account" label="搜尋帳號" outlined />
-        <q-input class="col-2" v-model="search.name" label="搜尋名稱" outlined />
-        <q-input class="col-2" v-model="search.phoneNumber" label="搜尋手機" outlined />
-        <q-btn class="q-ma-sm" color="primary" @click="onSearch">搜尋</q-btn>
-        <q-btn class="q-ma-sm" label="清空" color="secondary" @click="clearFilters" />
+
+      <div class="search row w-100">
+        <q-input :class="[search.userName ? 'haveText' : 'noText']" class="searchInput q-mr-sm" v-model="search.account" label="搜尋帳號" outlined />
+        <q-input :class="[search.name ? 'haveText' : 'noText']" class="searchInput q-mr-sm" v-model="search.name" label="搜尋名稱" outlined />
+        <q-input :class="[search.phoneNumber ? 'haveText' : 'noText']" class="searchInput q-mr-sm" v-model="search.phoneNumber" label="搜尋手機" outlined />
+        <q-btn class="q-mx-sm searchBtn" color="yellow-7" text-color="black" @click="onSearch">搜尋</q-btn>
+        <q-btn class="q-mx-sm searchBtn" label="清空" color="yellow-7" text-color="black" @click="clearFilters" />
       </div>
       <div>
-        <q-table :rows="pendingAccounts" :columns="columns" row-key="id" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
+        <q-table class="peddingsTable" :rows="pendingAccounts" :columns="columns" row-key="id" :rows-per-page-options="[5, 10, 20, 50]" :pagination="pagination">
           <template v-slot:body-cell-actions="props">
             <q-td :props="props">
               <q-btn flat @click="approveAccount(props.row.id)" color="primary">
@@ -37,7 +37,9 @@
                 icon-first="skip_previous"
                 icon-last="skip_next"
                 icon-prev="fast_rewind"
-                icon-next="fast_forward" />
+                icon-next="fast_forward"
+                color="grey-8"
+                active-color="yellow-7" />
             </div>
           </template>
         </q-table>
@@ -50,6 +52,51 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import Swal from 'sweetalert2'
 import { usePendingCountStore } from '/stores/pendingCountStore'
+
+useHead({
+  title: '北台灣企業餐飲團訂網｜廠商審核',
+  meta: [
+    // Description Meta Tag
+    {
+      name: 'description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    // Open Graph
+    {
+      property: 'og:title',
+      content: '北台灣企業餐飲團訂網｜廠商審核'
+    },
+    {
+      property: 'og:description',
+      content:
+        '北台灣企業餐飲團訂網平台為整合各大服務企業團體餐點的預訂網站，在這裡無論團體便當外送、會議盒餐外送、下午茶餐盒外送、甜品外送、手搖飲外送，在這裡都可輕鬆預訂！'
+    },
+    {
+      property: 'og:image',
+      content: 'https://www.beifoodorder.com/ogImg.png' // 使用你的圖片路徑
+    },
+    {
+      property: 'og:image:alt',
+      content: '北台灣'
+    },
+    {
+      property: 'og:url',
+      content: 'https://www.beifoodorder.com/setting/pedingAccounts'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      name: 'author',
+      content: 'bao'
+    }
+
+    // { name: 'google-site-verification', content: '5j6K_dFtD3LNzCJ42rR_OSpfv1rmneTcTEXsdRASwU0' }
+    // ...
+  ]
+})
 const { $apiAuth } = useNuxtApp()
 definePageMeta({
   layout: 'admin'

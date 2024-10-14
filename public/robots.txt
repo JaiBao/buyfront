@@ -1,6 +1,11 @@
 user-agent: *
 disallow: /privacy
-disallow: /onlineOrder
-disallow: /success
+disallow: /login
+disallow: /register
+disallow: /orders
+disallow: /category-page
+disallow: /businessCooperation
+disallow: /setting/
+disallow: /cart
 disallow: /search
-
+Disallow: /store/
