@@ -72,7 +72,7 @@
               <div class="toImg">
                 <label class="customUploadBtn">
                   選擇橫幅圖片
-                  <input type="file" @change="previewCover" hidden />
+                  <input type="file" @change="previewBanner" hidden />
                 </label>
                 <q-btn @click="uploadBanner" label="上傳橫幅圖片" color="yellow-7" text-color="black" :loading="loading" :disable="!bannerFile" />
               </div>
